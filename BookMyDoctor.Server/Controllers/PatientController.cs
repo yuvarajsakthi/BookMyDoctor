@@ -198,7 +198,9 @@ namespace BookMyDoctor.Server.Controllers
         }
 
         [HttpPost("profile/documents")]
-        public async Task<ActionResult<ApiResponse<object>>> UploadDocument([FromForm] IFormFile file, [FromForm] string documentType)
+        public async Task<ActionResult<ApiResponse<object>>> UploadDocument(
+            IFormFile file,
+            [FromForm] string documentType)
         {
             try
             {

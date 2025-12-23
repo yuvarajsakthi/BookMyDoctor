@@ -32,9 +32,6 @@ namespace BookMyDoctor.Server.Extentions
                 options.ExpiryMinutes = int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRY_MINUTES") ?? "60");
             });
 
-            // OpenStreetMap - No API key needed
-            Console.WriteLine("Using OpenStreetMap for location services (no API key required)");
-
             // Configure Cloudinary
             var cloudinary = new Cloudinary(Environment.GetEnvironmentVariable("CLOUDINARY_URL"));
             cloudinary.Api.Secure = true;
