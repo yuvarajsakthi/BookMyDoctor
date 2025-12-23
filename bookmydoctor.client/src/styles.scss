@@ -1,0 +1,128 @@
+/* You can add global styles to this file, and also import other style files */
+@use 'ngx-toastr/toastr';
+
+/* Christmas-themed global background */
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, 
+    #0f4c3a 0%,
+    #1e5f47 25%, 
+    #2d7054 50%, 
+    #c41e3a 75%, 
+    #8b0000 100%
+  );
+  background-attachment: fixed;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Christmas lights effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.3) 0%, transparent 2%),
+    radial-gradient(circle at 30% 10%, rgba(255, 0, 0, 0.3) 0%, transparent 2%),
+    radial-gradient(circle at 50% 30%, rgba(0, 255, 0, 0.3) 0%, transparent 2%),
+    radial-gradient(circle at 70% 15%, rgba(0, 0, 255, 0.3) 0%, transparent 2%),
+    radial-gradient(circle at 90% 25%, rgba(255, 215, 0, 0.3) 0%, transparent 2%);
+  pointer-events: none;
+  z-index: -1;
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Ensure app container has proper styling */
+.app-container {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Christmas-themed cards */
+.mat-card, .dashboard-card, .login-container, .register-container, .forgot-password-container {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(196, 30, 58, 0.6);
+  box-shadow: 0 8px 32px rgba(196, 30, 58, 0.3);
+  border-radius: 50px;
+}
+
+/* Table containers */
+.table-container, .patient-management-container, .doctor-management-container {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 40px;
+}
+
+/* Tables */
+.patients-table, .doctors-table, .users-table {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 30px;
+}
+
+.patients-table th, .doctors-table th, .users-table th {
+  background: rgba(15, 76, 58, 0.8) !important;
+  color: #ffd700 !important;
+}
+
+.patients-table td, .doctors-table td, .users-table td {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #2d3748 !important;
+}
+
+/* Form containers */
+.login-form, .register-form, .forgot-password-form {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 40px;
+}
+
+/* Input fields */
+.mat-form-field {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 25px;
+}
+
+/* Step containers */
+.step-container {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 35px;
+}
+
+/* Buttons */
+.mat-raised-button {
+  border-radius: 25px !important;
+}
+
+/* Header Christmas styling */
+.app-header {
+  background: linear-gradient(90deg, #0f4c3a 0%, #c41e3a 100%) !important;
+  backdrop-filter: blur(15px);
+  border-bottom: 3px solid #ffd700;
+  color: white !important;
+}
+
+.app-header h1 {
+  color: #ffd700 !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Christmas button styling */
+.mat-raised-button.mat-primary {
+  background-color: #c41e3a !important;
+  border: 2px solid #ffd700 !important;
+}
+
+.mat-raised-button.mat-accent {
+  background-color: #0f4c3a !important;
+  border: 2px solid #ffd700 !important;
+}

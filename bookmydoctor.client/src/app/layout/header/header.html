@@ -1,0 +1,14 @@
+<header class="app-header">
+  <h1>{{dashboardTitle}}</h1>
+  
+  <div class="user-menu" *ngIf="isLoggedIn" (mouseenter)="showDropdown = true" (mouseleave)="showDropdown = false">
+    <div class="user-info">
+      <span class="user-name">{{userName}}</span>
+      <span class="user-role">{{userRole}}</span>
+    </div>
+    
+    <div class="dropdown" *ngIf="showDropdown">
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</header>

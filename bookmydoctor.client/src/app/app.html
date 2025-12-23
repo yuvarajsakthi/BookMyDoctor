@@ -1,0 +1,18 @@
+<div class="app-container">
+  <ngx-snowfall 
+    [snowflakeCount]="100" 
+    [speed]="[1, 3]" 
+    [wind]="[0, 0]" 
+    [color]="'#ffffff'" 
+    [radius]="[0.5, 3]">
+  </ngx-snowfall>
+  
+  <app-header />
+  
+  <main class="app-main">
+    <router-outlet />
+  </main>
+</div>
+
+<!-- Toastr container -->
+<div id="toast-container" class="toast-top-right"></div>

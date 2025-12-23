@@ -1,0 +1,50 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h1>Patient Dashboard</h1>
+    <button mat-raised-button color="warn" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Logout
+    </button>
+  </div>
+
+  <div class="dashboard-grid">
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>search</mat-icon>
+        <mat-card-title>Find Doctors</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Search and find doctors by specialty</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary">Search Doctors</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>event</mat-icon>
+        <mat-card-title>Book Appointment</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>Schedule appointments with doctors</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary">Book Now</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="dashboard-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>history</mat-icon>
+        <mat-card-title>My Appointments</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>View your appointment history</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary">View History</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
