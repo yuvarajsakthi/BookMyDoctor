@@ -1,0 +1,132 @@
+.user-form-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  .back-button {
+    color: #666;
+  }
+}
+
+.form-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+
+.user-form {
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    .full-width {
+      flex: 1;
+    }
+
+    .half-width {
+      flex: 0 0 calc(50% - 8px);
+    }
+  }
+
+  .form-section-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    margin: 24px 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+
+    .mat-mdc-text-field-wrapper {
+      background-color: #fafafa;
+    }
+
+    &.mat-focused .mat-mdc-text-field-wrapper {
+      background-color: white;
+    }
+  }
+
+  .mat-mdc-select-panel {
+    max-height: 300px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+
+  button {
+    min-width: 120px;
+    
+    &[mat-raised-button] {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .user-form-container {
+    padding: 16px;
+  }
+
+  .user-form {
+    .form-row {
+      flex-direction: column;
+      gap: 12px;
+
+      .half-width {
+        flex: 1;
+      }
+    }
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    
+    button {
+      width: 100%;
+    }
+  }
+}
+
+// Loading state
+.mat-mdc-button:disabled {
+  opacity: 0.6;
+}
+
+// Error states
+.mat-mdc-form-field.mat-form-field-invalid {
+  .mat-mdc-text-field-wrapper {
+    border-color: #f44336;
+  }
+}
+
+// Focus states
+.mat-mdc-form-field.mat-focused {
+  .mat-mdc-floating-label {
+    color: #1976d2;
+  }
+}

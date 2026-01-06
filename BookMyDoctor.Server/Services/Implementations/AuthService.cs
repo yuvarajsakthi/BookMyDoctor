@@ -25,21 +25,10 @@ namespace BookMyDoctor.Server.Services.Implementations
 
         public async Task<UserResponseDto> RegisterPatientAsync(PatientCreateDto request)
         {
-            var userDto = _mapper.Map<UserDto>(request);
-            userDto.UserRole = UserRole.Patient;
-            userDto.IsActive = true;
+            var user = _mapper.Map<User>(request);
+            user.PasswordHash = PasswordService.HashPassword(request.Password);
             
-            var userEntity = _mapper.Map<User>(userDto);
-            userEntity.PasswordHash = PasswordService.HashPassword(request.Password);
-            
-            var createdUser = await _unitOfWork.Users.AddAsync(userEntity);
-            await _unitOfWork.SaveChangesAsync();
-            
-            var patientDto = _mapper.Map<PatientDto>(request);
-            patientDto.UserId = createdUser.UserId;
-            
-            var patientEntity = _mapper.Map<Patient>(patientDto);
-            await _unitOfWork.Patients.AddAsync(patientEntity);
+            var createdUser = await _unitOfWork.Users.AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
             
             return _mapper.Map<UserResponseDto>(createdUser);
@@ -47,22 +36,11 @@ namespace BookMyDoctor.Server.Services.Implementations
 
         public async Task<UserResponseDto> RegisterDoctorAsync(DoctorCreateDto request)
         {
-            var userDto = _mapper.Map<UserDto>(request);
-            userDto.UserRole = UserRole.Doctor;
-            userDto.IsActive = true;
+            var user = _mapper.Map<User>(request);
+            user.PasswordHash = PasswordService.HashPassword(request.Password);
+            user.IsApproved = false;
             
-            var userEntity = _mapper.Map<User>(userDto);
-            userEntity.PasswordHash = PasswordService.HashPassword(request.Password);
-            
-            var createdUser = await _unitOfWork.Users.AddAsync(userEntity);
-            await _unitOfWork.SaveChangesAsync();
-            
-            var doctorDto = _mapper.Map<DoctorDto>(request);
-            doctorDto.UserId = createdUser.UserId;
-            doctorDto.IsApproved = false;
-            
-            var doctorEntity = _mapper.Map<Doctor>(doctorDto);
-            await _unitOfWork.Doctors.AddAsync(doctorEntity);
+            var createdUser = await _unitOfWork.Users.AddAsync(user);
             await _unitOfWork.SaveChangesAsync();
             
             return _mapper.Map<UserResponseDto>(createdUser);
@@ -70,17 +48,25 @@ namespace BookMyDoctor.Server.Services.Implementations
 
         public async Task<(string token, UserResponseDto user)> LoginWithEmailAsync(LoginRequestDto request)
         {
+            
             var token = await _tokenService.AuthenticateAsync(request.Email, request.Password);
-            if (token == null) throw new UnauthorizedAccessException("Invalid email or password");
+            if (token == null) 
+            {
+                throw new UnauthorizedAccessException("Invalid email or password");
+            }
 
             var user = await _unitOfWork.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             
-            // Check if user is a doctor and if approved
-            if (user!.UserRole == UserRole.Doctor)
+            // Check if user is inactive
+            if (!user!.IsActive)
             {
-                var doctor = await _unitOfWork.Doctors.FirstOrDefaultAsync(d => d.UserId == user.UserId);
-                if (doctor == null || !doctor.IsApproved)
-                    throw new UnauthorizedAccessException("Doctor account is pending approval");
+                throw new UnauthorizedAccessException("Account is deactivated. Please contact administrator.");
+            }
+            
+            // Check if user is a doctor and if approved
+            if (user.UserRole == UserRole.Doctor && !user.IsApproved)
+            {
+                throw new UnauthorizedAccessException("Doctor account is pending approval");
             }
             
             var userDto = _mapper.Map<UserResponseDto>(user);
@@ -95,12 +81,16 @@ namespace BookMyDoctor.Server.Services.Implementations
             var user = await _unitOfWork.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null) throw new ArgumentException("User not found");
 
-            // Check if user is a doctor and if approved
-            if (user.UserRole == UserRole.Doctor)
+            // Check if user is inactive
+            if (!user.IsActive)
             {
-                var doctor = await _unitOfWork.Doctors.FirstOrDefaultAsync(d => d.UserId == user.UserId);
-                if (doctor == null || !doctor.IsApproved)
-                    throw new UnauthorizedAccessException("Doctor account is pending approval");
+                throw new UnauthorizedAccessException("Account is deactivated. Please contact administrator.");
+            }
+
+            // Check if user is a doctor and if approved
+            if (user.UserRole == UserRole.Doctor && !user.IsApproved)
+            {
+                throw new UnauthorizedAccessException("Doctor account is pending approval");
             }
 
             var userDto = _mapper.Map<UserResponseDto>(user);

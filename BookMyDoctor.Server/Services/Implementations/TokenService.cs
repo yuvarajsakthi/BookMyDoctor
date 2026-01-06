@@ -44,15 +44,22 @@ namespace BookMyDoctor.Server.Services.Implementations
 
         public async Task<string?> AuthenticateAsync(string email, string password)
         {
+            
             var user = await _unitOfWork.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
+            {
                 return null;
+            }
 
             if (!user.IsActive)
+            {
                 return null;
-
+            }
+ 
             if (!string.IsNullOrEmpty(password) && !VerifyPassword(password, user.PasswordHash))
+            {
                 return null;
+            }
 
             var userDto = new UserDto
             {

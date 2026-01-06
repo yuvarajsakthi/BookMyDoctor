@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using BookMyDoctor.Server.Models.Enums;
 
 namespace BookMyDoctor.Server.Models
@@ -27,5 +28,25 @@ namespace BookMyDoctor.Server.Models
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+
+        // Patient-specific fields
+        public DateOnly? DateOfBirth { get; set; }
+        [StringLength(10)]
+        public BloodGroup? BloodGroup { get; set; }
+        [StringLength(20)]
+        public string? EmergencyContact { get; set; }
+
+        // Doctor-specific fields
+        public int? ExperienceYears { get; set; }
+        public string? Bio { get; set; }
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? ConsultationFee { get; set; }
+        public bool IsApproved { get; set; } = false;
+        [StringLength(100)]
+        public string? Specialty { get; set; }
+        public int? ClinicId { get; set; }
+
+        // Navigation properties
+        public Clinic? Clinic { get; set; }
     }
 }

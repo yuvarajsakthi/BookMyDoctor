@@ -12,8 +12,8 @@ export class AdminGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
+    const token = sessionStorage.getItem('token');
+    const user = sessionStorage.getItem('user');
     
     if (user && token) {
       const userObj = JSON.parse(user);
@@ -23,7 +23,7 @@ export class AdminGuard implements CanActivate {
       }
     }
     
-    this.router.navigate(['/dashboard/admin']);
+    this.router.navigate(['/auth/login']);
     return false;
   }
 }

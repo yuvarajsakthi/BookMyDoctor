@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../core/services/auth.service';
-import { RegisterRequest } from '../../../core/models/auth.models';
+import { PatientCreateDto, DoctorCreateDto } from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-register',
@@ -19,12 +19,16 @@ import { RegisterRequest } from '../../../core/models/auth.models';
   styleUrl: './register.scss'
 })
 export class RegisterComponent {
-  basicInfoForm: FormGroup;
-  contactForm: FormGroup;
-  passwordForm: FormGroup;
+  private static readonly PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
+  
+  basicInfoForm!: FormGroup;
+  contactForm!: FormGroup;
+  passwordForm!: FormGroup;
+  doctorForm!: FormGroup;
   currentStep = 0;
   hidePassword = true;
   isLoading = false;
+  selectedRole: 'patient' | 'doctor' = 'patient';
 
   constructor(
     private fb: FormBuilder,
@@ -33,23 +37,32 @@ export class RegisterComponent {
     private spinner: NgxSpinnerService,
     private toastr: ToastrService
   ) {
+    this.initializeForms();
+  }
+
+  private initializeForms() {
     this.basicInfoForm = this.fb.group({
       userName: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)]]
+      email: ['', [Validators.required, Validators.email]]
     });
 
     this.contactForm = this.fb.group({
       phone: ['', [Validators.pattern(/^\d{10}$/)]],
-      userRole: ['', [Validators.required]],
-      gender: ['']
+      userRole: ['patient', [Validators.required]],
+      gender: [0]
     });
 
     this.passwordForm = this.fb.group({
       password: ['', [
-        Validators.required, 
+        Validators.required,
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        Validators.pattern(RegisterComponent.PASSWORD_PATTERN)
       ]]
+    });
+
+    this.doctorForm = this.fb.group({
+      specialty: ['', [Validators.required]],
+      experienceYears: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -57,20 +70,25 @@ export class RegisterComponent {
     switch (this.currentStep) {
       case 0: return 'Enter your basic information';
       case 1: return 'Choose your role and contact details';
-      case 2: return 'Create a secure password';
+      case 2: return this.selectedRole === 'doctor' ? 'Enter your professional details' : 'Create a secure password';
+      case 3: return 'Create a secure password';
       default: return '';
     }
   }
 
+  onRoleChange() {
+    this.selectedRole = this.contactForm.value.userRole;
+  }
+
   nextStep() {
     const currentForm = this.getCurrentForm();
-    if (currentForm && currentForm.valid && this.currentStep < 2) {
-      this.currentStep++;
+    if (currentForm && currentForm.valid) {
+      const maxSteps = this.selectedRole === 'doctor' ? 3 : 2;
+      if (this.currentStep < maxSteps) {
+        this.currentStep++;
+      }
     } else if (currentForm) {
-      // Mark all fields as touched to show validation errors
-      Object.keys(currentForm.controls).forEach(key => {
-        currentForm.get(key)?.markAsTouched();
-      });
+      currentForm.markAllAsTouched();
     }
   }
 
@@ -78,7 +96,8 @@ export class RegisterComponent {
     switch (this.currentStep) {
       case 0: return this.basicInfoForm;
       case 1: return this.contactForm;
-      case 2: return this.passwordForm;
+      case 2: return this.selectedRole === 'doctor' ? this.doctorForm : this.passwordForm;
+      case 3: return this.passwordForm;
       default: return this.basicInfoForm;
     }
   }
@@ -90,54 +109,89 @@ export class RegisterComponent {
   }
 
   onSubmit() {
-    // Mark all forms as touched to show validation errors
     this.markAllFormsTouched();
     
-    if (this.basicInfoForm.valid && this.contactForm.valid && this.passwordForm.valid) {
+    if (this.isAllFormsValid()) {
       this.isLoading = true;
       this.spinner.show();
       
-      const registerData: RegisterRequest = {
-        userName: this.basicInfoForm.value.userName,
-        email: this.basicInfoForm.value.email,
-        password: this.passwordForm.value.password,
-        userRole: this.contactForm.value.userRole
-      };
-      
-      // Add optional fields only if they have values
-      if (this.contactForm.value.phone) {
-        registerData.phone = this.contactForm.value.phone;
+      if (this.selectedRole === 'patient') {
+        this.registerPatient();
+      } else {
+        this.registerDoctor();
       }
-      
-      if (this.contactForm.value.gender) {
-        registerData.gender = this.contactForm.value.gender;
-      }
-      
-      this.authService.register(registerData).subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          this.spinner.hide();
-          if (response.success) {
-            this.toastr.success('Registration successful!');
-            this.router.navigate(['/auth/login']);
-          } else {
-            this.toastr.error(response.message);
-          }
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.spinner.hide();
-          this.toastr.error('Registration failed. Please try again.');
-        }
-      });
     }
   }
 
-  markAllFormsTouched() {
-    [this.basicInfoForm, this.contactForm, this.passwordForm].forEach(form => {
-      Object.keys(form.controls).forEach(key => {
-        form.get(key)?.markAsTouched();
-      });
+  private registerPatient() {
+    const patientData: PatientCreateDto = {
+      userName: this.basicInfoForm.value.userName,
+      email: this.basicInfoForm.value.email,
+      password: this.passwordForm.value.password,
+      phone: this.contactForm.value.phone || undefined,
+      gender: this.contactForm.value.gender || undefined
+    };
+    
+    this.authService.registerPatient(patientData).subscribe({
+      next: (response) => this.handleRegistrationResponse(response),
+      error: (error) => this.handleRegistrationError(error)
     });
+  }
+
+  private registerDoctor() {
+    const doctorData: DoctorCreateDto = {
+      userName: this.basicInfoForm.value.userName,
+      email: this.basicInfoForm.value.email,
+      password: this.passwordForm.value.password,
+      phone: this.contactForm.value.phone || undefined,
+      gender: this.contactForm.value.gender || undefined,
+      specialty: this.doctorForm.value.specialty,
+      experienceYears: this.doctorForm.value.experienceYears
+    };
+    
+    this.authService.registerDoctor(doctorData).subscribe({
+      next: (response) => this.handleRegistrationResponse(response),
+      error: (error) => this.handleRegistrationError(error)
+    });
+  }
+
+  private handleRegistrationResponse(response: any) {
+    this.isLoading = false;
+    this.spinner.hide();
+    
+    if (!response) {
+      this.toastr.error('No response received from server');
+      return;
+    }
+    
+    if (response.success) {
+      this.toastr.success('Registration successful!');
+      this.router.navigate(['/auth/login']);
+    } else {
+      this.toastr.error(response.message || 'Registration failed');
+    }
+  }
+
+  private handleRegistrationError(error: any) {
+    this.isLoading = false;
+    this.spinner.hide();
+    const errorMessage = error.error?.message || error.message || 'Registration failed. Please try again.';
+    this.toastr.error(errorMessage);
+  }
+
+  private isAllFormsValid(): boolean {
+    const requiredForms = [this.basicInfoForm, this.contactForm, this.passwordForm];
+    if (this.selectedRole === 'doctor') {
+      requiredForms.push(this.doctorForm);
+    }
+    return requiredForms.every(form => form.valid);
+  }
+
+  private markAllFormsTouched() {
+    const forms = [this.basicInfoForm, this.contactForm, this.passwordForm];
+    if (this.selectedRole === 'doctor') {
+      forms.push(this.doctorForm);
+    }
+    forms.forEach(form => form.markAllAsTouched());
   }
 }

@@ -1,0 +1,159 @@
+<nav class="sidebar" [class.open]="isOpen" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <div class="sidebar-brand">
+      <div class="brand-icon" (click)="toggleCollapse()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </div>
+      <span class="brand-text">{{sidebarTitle}}</span>
+    </div>
+    <button class="collapse-btn" (click)="toggleCollapse()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="sidebar-content">
+    <div class="nav-section" *ngIf="userRole === 'Admin'">
+      <h3 class="nav-title">Admin Dashboard</h3>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a routerLink="/dashboard/admin" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/doctors" [class.active]="isRouteActive('/admin/doctors')" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 8h-2v3h-3v2h3v3h2v-3h3v-2h-3zM4 8h6v2H4zm0 4h6v2H4zm0 4h6v2H4z"/>
+            </svg>
+            <span class="nav-text">Doctors</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/patients" [class.active]="isRouteActive('/admin/patients')" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            <span class="nav-text">Patients</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/clinics" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span class="nav-text">Clinics</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/admin/appointments" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+            </svg>
+            <span class="nav-text">Appointments</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="nav-section" *ngIf="userRole === 'Doctor'">
+      <h3 class="nav-title">Doctor Dashboard</h3>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a routerLink="/dashboard/doctor" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/doctor/appointments" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+            </svg>
+            <span class="nav-text">Appointments</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/doctor/calendar" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM4 21V8h16v13H4z"/>
+            </svg>
+            <span class="nav-text">Calendar</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/doctor/profile" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span class="nav-text">Profile</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="nav-section" *ngIf="userRole === 'Patient'">
+      <h3 class="nav-title">Patient Dashboard</h3>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a routerLink="/dashboard/patient" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/patient/appointments" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+            </svg>
+            <span class="nav-text">My Appointments</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/patient/book-appointment" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 8h-2v3h-3v2h3v3h2v-3h3v-2h-3zM4 8h6v2H4zm0 4h6v2H4zm0 4h6v2H4z"/>
+            </svg>
+            <span class="nav-text">Book Appointment</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/patient/profile" routerLinkActive="active" class="nav-link">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span class="nav-text">Profile</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="nav-section">
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <button class="nav-link logout-btn" (click)="logout()">
+            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+            </svg>
+            <span class="nav-text">Logout</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" *ngIf="isMobile && isOpen" (click)="close()"></div>

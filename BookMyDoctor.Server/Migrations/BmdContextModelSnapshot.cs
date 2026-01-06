@@ -33,7 +33,7 @@ namespace BookMyDoctor.Server.Migrations
                     b.Property<DateOnly>("AppointmentDate")
                         .HasColumnType("date");
 
-                    b.Property<int>("AppointmentType")
+                    b.Property<int?>("AppointmentType")
                         .HasColumnType("int");
 
                     b.Property<int>("ClinicId")
@@ -79,13 +79,71 @@ namespace BookMyDoctor.Server.Migrations
                             AppointmentType = 0,
                             ClinicId = 1,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            DoctorId = 1,
+                            DoctorId = 2,
                             EndTime = new TimeOnly(10, 30, 0),
-                            PatientId = 1,
+                            PatientId = 3,
                             Reason = "Regular checkup",
                             StartTime = new TimeOnly(10, 0, 0),
+                            Status = 2
+                        },
+                        new
+                        {
+                            AppointmentId = 2,
+                            AppointmentDate = new DateOnly(2026, 1, 7),
+                            AppointmentType = 0,
+                            ClinicId = 1,
+                            CreatedAt = new DateTime(2026, 1, 6, 5, 45, 21, 25, DateTimeKind.Utc).AddTicks(5900),
+                            DoctorId = 2,
+                            EndTime = new TimeOnly(14, 30, 0),
+                            PatientId = 3,
+                            Reason = "Follow-up consultation",
+                            StartTime = new TimeOnly(14, 0, 0),
                             Status = 1
+                        },
+                        new
+                        {
+                            AppointmentId = 3,
+                            AppointmentDate = new DateOnly(2026, 1, 13),
+                            AppointmentType = 0,
+                            ClinicId = 1,
+                            CreatedAt = new DateTime(2026, 1, 6, 5, 45, 21, 25, DateTimeKind.Utc).AddTicks(5904),
+                            DoctorId = 2,
+                            EndTime = new TimeOnly(11, 30, 0),
+                            PatientId = 3,
+                            Reason = "Routine examination",
+                            StartTime = new TimeOnly(11, 0, 0),
+                            Status = 0
                         });
+                });
+
+            modelBuilder.Entity("BookMyDoctor.Server.Models.Availability", b =>
+                {
+                    b.Property<int>("AvailabilityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvailabilityId"));
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("AvailabilityId");
+
+                    b.HasIndex("DoctorId");
+
+                    b.ToTable("Availabilities");
                 });
 
             modelBuilder.Entity("BookMyDoctor.Server.Models.Clinic", b =>
@@ -121,6 +179,12 @@ namespace BookMyDoctor.Server.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<TimeOnly?>("OpenTime")
                         .HasColumnType("time");
@@ -165,127 +229,6 @@ namespace BookMyDoctor.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Doctor", b =>
-                {
-                    b.Property<int>("DoctorId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorId"));
-
-                    b.Property<string>("Bio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ClinicId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("ConsultationFee")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<byte?>("DayOfWeek")
-                        .HasColumnType("tinyint");
-
-                    b.Property<TimeOnly?>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<int?>("ExperienceYears")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsApproved")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Specialty")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<TimeOnly?>("StartTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DoctorId");
-
-                    b.HasIndex("ClinicId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Doctors");
-
-                    b.HasData(
-                        new
-                        {
-                            DoctorId = 1,
-                            Bio = "Experienced cardiologist with 10 years of practice",
-                            ConsultationFee = 500.00m,
-                            ExperienceYears = 10,
-                            IsApproved = true,
-                            Specialty = "Cardiology",
-                            UserId = 2
-                        });
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.DoctorClinic", b =>
-                {
-                    b.Property<int>("DoctorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClinicId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DoctorId", "ClinicId");
-
-                    b.HasIndex("ClinicId");
-
-                    b.ToTable("DoctorClinics");
-
-                    b.HasData(
-                        new
-                        {
-                            DoctorId = 1,
-                            ClinicId = 1
-                        });
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Message", b =>
-                {
-                    b.Property<int>("MessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageId"));
-
-                    b.Property<string>("MessageText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("ReceiverId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SenderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("MessageId");
-
-                    b.HasIndex("ReceiverId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("Messages");
-
-                    b.HasData(
-                        new
-                        {
-                            MessageId = 1,
-                            MessageText = "Please arrive 15 minutes early for your appointment",
-                            ReceiverId = 3,
-                            SenderId = 2,
-                            SentAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        });
-                });
-
             modelBuilder.Entity("BookMyDoctor.Server.Models.Notification", b =>
                 {
                     b.Property<int>("NotificationId")
@@ -319,83 +262,6 @@ namespace BookMyDoctor.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Patient", b =>
-                {
-                    b.Property<int>("PatientId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientId"));
-
-                    b.Property<int?>("BloodGroup")
-                        .HasMaxLength(10)
-                        .HasColumnType("int");
-
-                    b.Property<DateOnly?>("DateOfBirth")
-                        .HasColumnType("date");
-
-                    b.Property<string>("EmergencyContact")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PatientId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Patients");
-
-                    b.HasData(
-                        new
-                        {
-                            PatientId = 1,
-                            BloodGroup = 6,
-                            DateOfBirth = new DateOnly(1990, 1, 1),
-                            EmergencyContact = "9876543210",
-                            UserId = 3
-                        });
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.PatientMedicalHistory", b =>
-                {
-                    b.Property<int>("HistoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HistoryId"));
-
-                    b.Property<string>("Condition")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("PatientId")
-                        .HasColumnType("int");
-
-                    b.HasKey("HistoryId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("PatientMedicalHistories");
-
-                    b.HasData(
-                        new
-                        {
-                            HistoryId = 1,
-                            Condition = "Hypertension",
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Notes = "Patient has mild hypertension, prescribed medication",
-                            PatientId = 1
-                        });
-                });
-
             modelBuilder.Entity("BookMyDoctor.Server.Models.Payment", b =>
                 {
                     b.Property<int>("PaymentId")
@@ -425,10 +291,6 @@ namespace BookMyDoctor.Server.Migrations
                     b.Property<DateTime?>("PaidAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("PaymentMethod")
-                        .HasMaxLength(50)
-                        .HasColumnType("int");
-
                     b.Property<int>("PaymentStatus")
                         .HasColumnType("int");
 
@@ -440,13 +302,9 @@ namespace BookMyDoctor.Server.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("RazorpaySignature")
+                    b.Property<string>("UpiTransactionId")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ReceiptUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("PaymentId");
 
@@ -464,9 +322,8 @@ namespace BookMyDoctor.Server.Migrations
                             Currency = "INR",
                             Description = "Consultation fee",
                             PaidAt = new DateTime(2024, 1, 1, 0, 5, 0, 0, DateTimeKind.Utc),
-                            PaymentMethod = 3,
                             PaymentStatus = 1,
-                            RazorpayOrderId = "order_test123"
+                            UpiTransactionId = "upi_test123"
                         });
                 });
 
@@ -478,18 +335,44 @@ namespace BookMyDoctor.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
+                    b.Property<string>("Bio")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("BloodGroup")
+                        .HasMaxLength(10)
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("ConsultationFee")
+                        .HasColumnType("decimal(10,2)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<string>("EmergencyContact")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("ExperienceYears")
+                        .HasColumnType("int");
+
                     b.Property<int?>("Gender")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsEmailVerified")
@@ -510,6 +393,10 @@ namespace BookMyDoctor.Server.Migrations
                     b.Property<string>("ProfileUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Specialty")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -521,6 +408,8 @@ namespace BookMyDoctor.Server.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("ClinicId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -534,6 +423,7 @@ namespace BookMyDoctor.Server.Migrations
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "yuvarajsakthi003@gmail.com",
                             IsActive = true,
+                            IsApproved = false,
                             IsEmailVerified = true,
                             PasswordHash = "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAyqfye",
                             Phone = "1234567890",
@@ -543,21 +433,30 @@ namespace BookMyDoctor.Server.Migrations
                         new
                         {
                             UserId = 2,
+                            Bio = "Experienced cardiologist with 10 years of practice",
+                            ConsultationFee = 500.00m,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "sakthiyuvaraj7@gmail.com",
+                            ExperienceYears = 10,
                             IsActive = true,
+                            IsApproved = true,
                             IsEmailVerified = true,
                             PasswordHash = "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAyqfye",
                             Phone = "0987654321",
+                            Specialty = "Cardiology",
                             UserName = "Dr. Smith",
                             UserRole = 1
                         },
                         new
                         {
                             UserId = 3,
+                            BloodGroup = 6,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DateOfBirth = new DateOnly(1990, 1, 1),
                             Email = "yuvarajsakthi242003@gmail.com",
+                            EmergencyContact = "9876543210",
                             IsActive = true,
+                            IsApproved = false,
                             IsEmailVerified = true,
                             PasswordHash = "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAyqfye",
                             Phone = "5555555555",
@@ -574,13 +473,13 @@ namespace BookMyDoctor.Server.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BookMyDoctor.Server.Models.Doctor", "Doctor")
+                    b.HasOne("BookMyDoctor.Server.Models.User", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("BookMyDoctor.Server.Models.Patient", "Patient")
+                    b.HasOne("BookMyDoctor.Server.Models.User", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -593,57 +492,15 @@ namespace BookMyDoctor.Server.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Doctor", b =>
+            modelBuilder.Entity("BookMyDoctor.Server.Models.Availability", b =>
                 {
-                    b.HasOne("BookMyDoctor.Server.Models.Clinic", "Clinic")
+                    b.HasOne("BookMyDoctor.Server.Models.User", "Doctor")
                         .WithMany()
-                        .HasForeignKey("ClinicId");
-
-                    b.HasOne("BookMyDoctor.Server.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Clinic");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.DoctorClinic", b =>
-                {
-                    b.HasOne("BookMyDoctor.Server.Models.Clinic", "Clinic")
-                        .WithMany("DoctorClinics")
-                        .HasForeignKey("ClinicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookMyDoctor.Server.Models.Doctor", "Doctor")
-                        .WithMany("DoctorClinics")
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Clinic");
-
                     b.Navigation("Doctor");
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Message", b =>
-                {
-                    b.HasOne("BookMyDoctor.Server.Models.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("BookMyDoctor.Server.Models.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("BookMyDoctor.Server.Models.Notification", b =>
@@ -656,27 +513,6 @@ namespace BookMyDoctor.Server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Patient", b =>
-                {
-                    b.HasOne("BookMyDoctor.Server.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.PatientMedicalHistory", b =>
-                {
-                    b.HasOne("BookMyDoctor.Server.Models.Patient", "Patient")
-                        .WithMany("MedicalHistories")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Patient");
-                });
-
             modelBuilder.Entity("BookMyDoctor.Server.Models.Payment", b =>
                 {
                     b.HasOne("BookMyDoctor.Server.Models.Appointment", "Appointment")
@@ -687,19 +523,18 @@ namespace BookMyDoctor.Server.Migrations
                     b.Navigation("Appointment");
                 });
 
+            modelBuilder.Entity("BookMyDoctor.Server.Models.User", b =>
+                {
+                    b.HasOne("BookMyDoctor.Server.Models.Clinic", "Clinic")
+                        .WithMany("Doctors")
+                        .HasForeignKey("ClinicId");
+
+                    b.Navigation("Clinic");
+                });
+
             modelBuilder.Entity("BookMyDoctor.Server.Models.Clinic", b =>
                 {
-                    b.Navigation("DoctorClinics");
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Doctor", b =>
-                {
-                    b.Navigation("DoctorClinics");
-                });
-
-            modelBuilder.Entity("BookMyDoctor.Server.Models.Patient", b =>
-                {
-                    b.Navigation("MedicalHistories");
+                    b.Navigation("Doctors");
                 });
 #pragma warning restore 612, 618
         }

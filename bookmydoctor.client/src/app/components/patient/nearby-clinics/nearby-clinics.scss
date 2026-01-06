@@ -1,0 +1,26 @@
+.nearby-clinics {
+  padding: 20px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.clinics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.clinic-card {
+  height: fit-content;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}

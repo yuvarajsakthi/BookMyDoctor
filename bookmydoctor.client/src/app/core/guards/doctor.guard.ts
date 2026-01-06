@@ -12,16 +12,18 @@ export class DoctorGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
+    const user = sessionStorage.getItem('user');
     
-    if (token && !this.jwtHelper.isTokenExpired(token)) {
-      const decodedToken = this.jwtHelper.decodeToken(token);
-      if (decodedToken.role === 'Doctor') {
+    if (user && token) {
+      const userObj = JSON.parse(user);
+      
+      if (userObj.userRole === 'Doctor') {
         return true;
       }
     }
     
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/auth/login']);
     return false;
   }
 }

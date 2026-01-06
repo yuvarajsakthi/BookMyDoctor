@@ -16,7 +16,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
           this.router.navigate(['/auth/login']);
           this.toastr.error('Session expired. Please login again.');
         } else if (error.status === 403) {

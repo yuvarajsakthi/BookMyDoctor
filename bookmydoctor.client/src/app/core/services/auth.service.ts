@@ -4,11 +4,12 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ApiResponse,
-  RegisterRequest,
-  LoginRequest,
-  ForgotPasswordRequest,
-  ResetPasswordRequest,
-  ChangePasswordRequest,
+  PatientCreateDto,
+  DoctorCreateDto,
+  LoginRequestDto,
+  ForgotPasswordRequestDto,
+  ResetPasswordWithOtpDto,
+  ChangePasswordRequestDto,
   AuthResponse,
   VerifyOtpRequestDto,
   SendOtpRequestDto
@@ -22,15 +23,29 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  register(request: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
+  registerPatient(request: PatientCreateDto): Observable<ApiResponse<any>> {
     const formData = new FormData();
     Object.keys(request).forEach(key => {
-      formData.append(key, (request as any)[key]);
+      const value = (request as any)[key];
+      if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
     });
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/register`, formData);
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/register/patient`, formData);
   }
 
-  loginWithEmail(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
+  registerDoctor(request: DoctorCreateDto): Observable<ApiResponse<any>> {
+    const formData = new FormData();
+    Object.keys(request).forEach(key => {
+      const value = (request as any)[key];
+      if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
+    });
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/register/doctor`, formData);
+  }
+
+  loginWithEmail(request: LoginRequestDto): Observable<ApiResponse<AuthResponse>> {
     const formData = new FormData();
     formData.append('email', request.email);
     formData.append('password', request.password);
@@ -47,6 +62,7 @@ export class AuthService {
   sendOtp(request: SendOtpRequestDto): Observable<ApiResponse<any>> {
     const formData = new FormData();
     formData.append('email', request.email);
+    formData.append('purpose', request.purpose.toString());
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/otp/send`, formData);
   }
 
@@ -61,13 +77,13 @@ export class AuthService {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/logout`, {});
   }
 
-  forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse<any>> {
+  forgotPassword(request: ForgotPasswordRequestDto): Observable<ApiResponse<any>> {
     const formData = new FormData();
     formData.append('email', request.email);
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/password/forgot`, formData);
   }
 
-  resetPassword(request: ResetPasswordRequest): Observable<ApiResponse<any>> {
+  resetPassword(request: ResetPasswordWithOtpDto): Observable<ApiResponse<any>> {
     const formData = new FormData();
     formData.append('email', request.email);
     formData.append('otp', request.otp);
@@ -75,7 +91,7 @@ export class AuthService {
     return this.http.post<ApiResponse<any>>(`${this.apiUrl}/password/reset`, formData);
   }
 
-  changePassword(request: ChangePasswordRequest): Observable<ApiResponse<any>> {
+  changePassword(request: ChangePasswordRequestDto): Observable<ApiResponse<any>> {
     const formData = new FormData();
     formData.append('currentPassword', request.currentPassword);
     formData.append('newPassword', request.newPassword);

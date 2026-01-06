@@ -1,0 +1,100 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-avatar">
+      <img [src]="profileData?.profileUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiBmaWxsPSIjZjBmMGYwIi8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNDAiIHI9IjE2IiBmaWxsPSIjY2NjIi8+CjxwYXRoIGQ9Ik0zMCA4MGMwLTE2LjU2OSAxMy40MzEtMzAgMzAtMzBzMzAgMTMuNDMxIDMwIDMwdjQwSDMwVjgweiIgZmlsbD0iI2NjYyIvPgo8L3N2Zz4K'" alt="Profile Photo">
+      <button class="avatar-edit-btn" title="Change Photo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="profile-info">
+      <h1>{{ profileData?.userName }}</h1>
+      <p class="role">{{ profileData?.userRole }}</p>
+      <div class="profile-stats">
+        <div class="stat">
+          <span class="stat-value">{{ profileData?.bloodGroup }}</span>
+          <span class="stat-label">Blood Group</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ getAge() }}</span>
+          <span class="stat-label">Age</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-card">
+      <div class="card-header">
+        <h2>Personal Information</h2>
+        <button class="edit-btn" (click)="toggleEdit()" [class.active]="isEditing">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+          </svg>
+          {{ isEditing ? 'Cancel' : 'Edit' }}
+        </button>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" formControlName="userName">
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" formControlName="email">
+          </div>
+
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" formControlName="phone">
+          </div>
+
+          <div class="form-group">
+            <label>Gender</label>
+            <select formControlName="gender">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" formControlName="dateOfBirth">
+          </div>
+
+          <div class="form-group">
+            <label>Blood Group</label>
+            <select formControlName="bloodGroup">
+              <option value="APositive">A+</option>
+              <option value="ANegative">A-</option>
+              <option value="BPositive">B+</option>
+              <option value="BNegative">B-</option>
+              <option value="ABPositive">AB+</option>
+              <option value="ABNegative">AB-</option>
+              <option value="OPositive">O+</option>
+              <option value="ONegative">O-</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Emergency Contact</label>
+            <input type="tel" formControlName="emergencyContact">
+          </div>
+        </div>
+
+        <div class="form-actions" *ngIf="isEditing">
+          <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="!profileForm.valid || isLoading">
+            <span *ngIf="isLoading" class="spinner"></span>
+            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

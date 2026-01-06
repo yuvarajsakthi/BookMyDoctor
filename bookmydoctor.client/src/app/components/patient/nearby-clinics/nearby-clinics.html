@@ -1,0 +1,31 @@
+<div class="nearby-clinics">
+  <h2>Nearby Clinics</h2>
+  
+  <button mat-raised-button color="primary" (click)="loadClinics()" [disabled]="isLoading">
+    <mat-icon>location_on</mat-icon>
+    Find Nearby Clinics
+  </button>
+
+  <div *ngIf="isLoading" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div class="clinics-grid" *ngIf="!isLoading && clinics.length > 0">
+    <mat-card *ngFor="let clinic of clinics" class="clinic-card">
+      <mat-card-header>
+        <mat-card-title>{{clinic.name}}</mat-card-title>
+        <mat-card-subtitle>{{clinic.distance}} km away</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{clinic.address}}</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary">Book Appointment</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!isLoading && clinics.length === 0" class="no-results">
+    <p>No nearby clinics found</p>
+  </div>
+</div>

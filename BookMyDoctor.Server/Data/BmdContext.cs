@@ -9,15 +9,11 @@ namespace BookMyDoctor.Server.Data
         public BmdContext(DbContextOptions<BmdContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Doctor> Doctors { get; set; }
-        public DbSet<Patient> Patients { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<DoctorClinic> DoctorClinics { get; set; }
+        public DbSet<Availability> Availabilities { get; set; }
         public DbSet<Clinic> Clinics { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-        public DbSet<Message> Messages { get; set; }
-        public DbSet<PatientMedicalHistory> PatientMedicalHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -24,8 +24,8 @@ namespace BookMyDoctor.Server.Models
         public string? Reason { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public Patient Patient { get; set; } = null!;
-        public Doctor Doctor { get; set; } = null!;
+        public User Patient { get; set; } = null!;
+        public User Doctor { get; set; } = null!;
         public Clinic Clinic { get; set; } = null!;
     }
 }

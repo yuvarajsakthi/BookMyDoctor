@@ -13,6 +13,9 @@ namespace BookMyDoctor.Server.Extentions
             // Memory Cache
             services.AddMemoryCache();
 
+            // HttpClient for external APIs
+            services.AddHttpClient();
+
             // AutoMapper
             services.AddAutoMapper(typeof(MappingProfile));
 
@@ -21,10 +24,14 @@ namespace BookMyDoctor.Server.Extentions
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IPatientService, PatientService>();
-            services.AddScoped<IDoctorService, DoctorService>();
-            services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAppointmentService, AppointmentService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IGeoService, GeoService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IClinicService, ClinicService>();
+            services.AddScoped<IAvailabilityService, AvailabilityService>();
             
             return services;
         }

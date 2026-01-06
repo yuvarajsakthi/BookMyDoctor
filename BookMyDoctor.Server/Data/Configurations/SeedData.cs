@@ -32,6 +32,11 @@ namespace BookMyDoctor.Server.Data.Configurations
                     Phone = "0987654321",
                     PasswordHash = "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAyqfye", // Admin@123
                     UserRole = UserRole.Doctor,
+                    ExperienceYears = 10,
+                    Bio = "Experienced cardiologist with 10 years of practice",
+                    ConsultationFee = 500.00m,
+                    IsApproved = true,
+                    Specialty = "Cardiology",
                     IsEmailVerified = true,
                     IsActive = true,
                     CreatedAt = seedDate
@@ -44,35 +49,12 @@ namespace BookMyDoctor.Server.Data.Configurations
                     Phone = "5555555555",
                     PasswordHash = "$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAyqfye", // Admin@123
                     UserRole = UserRole.Patient,
+                    DateOfBirth = new DateOnly(1990, 1, 1),
+                    BloodGroup = BloodGroup.OPositive,
+                    EmergencyContact = "9876543210",
                     IsEmailVerified = true,
                     IsActive = true,
                     CreatedAt = seedDate
-                }
-            );
-
-            // Seed Doctors
-            modelBuilder.Entity<Doctor>().HasData(
-                new Doctor
-                {
-                    DoctorId = 1,
-                    UserId = 2,
-                    ExperienceYears = 10,
-                    Bio = "Experienced cardiologist with 10 years of practice",
-                    ConsultationFee = 500.00m,
-                    IsApproved = true,
-                    Specialty = "Cardiology"
-                }
-            );
-
-            // Seed Patients
-            modelBuilder.Entity<Patient>().HasData(
-                new Patient
-                {
-                    PatientId = 1,
-                    UserId = 3,
-                    DateOfBirth = new DateOnly(1990, 1, 1),
-                    BloodGroup = BloodGroup.OPositive,
-                    EmergencyContact = "9876543210"
                 }
             );
 
@@ -102,30 +84,53 @@ namespace BookMyDoctor.Server.Data.Configurations
                 }
             );
 
-            // Seed DoctorClinics
-            modelBuilder.Entity<DoctorClinic>().HasData(
-                new DoctorClinic
-                {
-                    DoctorId = 1,
-                    ClinicId = 1
-                }
-            );
-
             // Seed Appointments
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var tomorrow = today.AddDays(1);
+            var nextWeek = today.AddDays(7);
+            
             modelBuilder.Entity<Appointment>().HasData(
                 new Appointment
                 {
                     AppointmentId = 1,
-                    PatientId = 1,
-                    DoctorId = 1,
+                    PatientId = 3,
+                    DoctorId = 2,
                     ClinicId = 1,
                     AppointmentDate = new DateOnly(2024, 2, 15),
                     StartTime = new TimeOnly(10, 0),
                     EndTime = new TimeOnly(10, 30),
                     AppointmentType = AppointmentType.InPerson,
-                    Status = AppointmentStatus.Booked,
+                    Status = AppointmentStatus.Completed,
                     Reason = "Regular checkup",
                     CreatedAt = seedDate
+                },
+                new Appointment
+                {
+                    AppointmentId = 2,
+                    PatientId = 3,
+                    DoctorId = 2,
+                    ClinicId = 1,
+                    AppointmentDate = tomorrow,
+                    StartTime = new TimeOnly(14, 0),
+                    EndTime = new TimeOnly(14, 30),
+                    AppointmentType = AppointmentType.InPerson,
+                    Status = AppointmentStatus.Booked,
+                    Reason = "Follow-up consultation",
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Appointment
+                {
+                    AppointmentId = 3,
+                    PatientId = 3,
+                    DoctorId = 2,
+                    ClinicId = 1,
+                    AppointmentDate = nextWeek,
+                    StartTime = new TimeOnly(11, 0),
+                    EndTime = new TimeOnly(11, 30),
+                    AppointmentType = AppointmentType.InPerson,
+                    Status = AppointmentStatus.Pending,
+                    Reason = "Routine examination",
+                    CreatedAt = DateTime.UtcNow
                 }
             );
 
@@ -135,10 +140,9 @@ namespace BookMyDoctor.Server.Data.Configurations
                 {
                     PaymentId = 1,
                     AppointmentId = 1,
-                    RazorpayOrderId = "order_test123",
+                    UpiTransactionId = "upi_test123",
                     Amount = 500.00m,
                     Currency = "INR",
-                    PaymentMethod = PaymentMethod.UPI,
                     PaymentStatus = PaymentStatus.Paid,
                     Description = "Consultation fee",
                     CreatedAt = seedDate,
@@ -157,29 +161,7 @@ namespace BookMyDoctor.Server.Data.Configurations
                 }
             );
 
-            // Seed Messages
-            modelBuilder.Entity<Message>().HasData(
-                new Message
-                {
-                    MessageId = 1,
-                    SenderId = 2,
-                    ReceiverId = 3,
-                    MessageText = "Please arrive 15 minutes early for your appointment",
-                    SentAt = seedDate
-                }
-            );
-
-            // Seed PatientMedicalHistories
-            modelBuilder.Entity<PatientMedicalHistory>().HasData(
-                new PatientMedicalHistory
-                {
-                    HistoryId = 1,
-                    PatientId = 1,
-                    Condition = "Hypertension",
-                    Notes = "Patient has mild hypertension, prescribed medication",
-                    CreatedAt = seedDate
-                }
-            );
+            // Seed PatientMedicalHistories - removed
         }
     }
 }

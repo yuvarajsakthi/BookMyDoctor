@@ -16,27 +16,19 @@ namespace BookMyDoctor.Server.Repositories.UnitOfWork
         {
             _context = context;
             Users = new BmdRepository<User>(_context);
-            Doctors = new BmdRepository<Doctor>(_context);
-            Patients = new BmdRepository<Patient>(_context);
             Appointments = new BmdRepository<Appointment>(_context);
-            DoctorClinics = new BmdRepository<DoctorClinic>(_context);
+            Availabilities = new BmdRepository<Availability>(_context);
             Clinics = new BmdRepository<Clinic>(_context);
             Payments = new BmdRepository<Payment>(_context);
             Notifications = new BmdRepository<Notification>(_context);
-            Messages = new BmdRepository<Message>(_context);
-            PatientMedicalHistories = new BmdRepository<PatientMedicalHistory>(_context);
         }
 
         public IBmdRepository<User> Users { get; }
-        public IBmdRepository<Doctor> Doctors { get; }
-        public IBmdRepository<Patient> Patients { get; }
         public IBmdRepository<Appointment> Appointments { get; }
-        public IBmdRepository<DoctorClinic> DoctorClinics { get; }
+        public IBmdRepository<Availability> Availabilities { get; }
         public IBmdRepository<Clinic> Clinics { get; }
         public IBmdRepository<Payment> Payments { get; }
         public IBmdRepository<Notification> Notifications { get; }
-        public IBmdRepository<Message> Messages { get; }
-        public IBmdRepository<PatientMedicalHistory> PatientMedicalHistories { get; }
 
         public async Task<int> SaveChangesAsync()
         {

@@ -1,14 +1,68 @@
 <header class="app-header">
-  <h1>{{dashboardTitle}}</h1>
-  
-  <div class="user-menu" *ngIf="isLoggedIn" (mouseenter)="showDropdown = true" (mouseleave)="showDropdown = false">
-    <div class="user-info">
-      <span class="user-name">{{userName}}</span>
-      <span class="user-role">{{userRole}}</span>
+  <div class="header-content">
+    <div class="header-left">
+      <button class="mobile-menu-btn" (click)="toggleMobileMenu()" *ngIf="isMobile" aria-label="Toggle mobile menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="brand" (click)="navigateToHome()" style="cursor: pointer;">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-title">{{dashboardTitle}}</h1>
+          <p class="brand-subtitle">Healthcare Management</p>
+        </div>
+      </div>
     </div>
     
-    <div class="dropdown" *ngIf="showDropdown">
-      <button class="logout-btn" (click)="logout()">Logout</button>
+    <div class="header-right">
+      <div class="header-actions" *ngIf="isLoggedIn">
+        <button class="notification-btn" (click)="openNotifications()" aria-label="Notifications" *ngIf="userRole !== 'Admin'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
+          <span class="notification-badge" *ngIf="notificationCount > 0">{{notificationCount}}</span>
+        </button>
+        
+        <div class="user-menu">
+          <div class="user-avatar">
+            <div class="avatar-circle">
+              {{getUserInitials()}}
+            </div>
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{userName}}</span>
+            <span class="user-role">{{userRole}}</span>
+          </div>
+          <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7 10l5 5 5-5z"/>
+          </svg>
+          
+          <div class="dropdown-menu">
+            <button class="dropdown-item logout-item" (click)="logout()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+              </svg>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="auth-buttons" *ngIf="!isLoggedIn">
+        <button class="login-btn" (click)="navigateToLogin()">
+          Login
+        </button>
+        <button class="register-btn" (click)="navigateToRegister()">
+          Register
+        </button>
+      </div>
     </div>
   </div>
 </header>
+
+<app-notification-modal></app-notification-modal>

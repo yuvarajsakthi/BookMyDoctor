@@ -23,7 +23,9 @@ namespace BookMyDoctor.Server.Models
         public TimeOnly? CloseTime { get; set; }
         public string? WorkingDays { get; set; }
         public string? HolidayDates { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
 
-        public ICollection<DoctorClinic> DoctorClinics { get; set; } = new List<DoctorClinic>();
+        public ICollection<User> Doctors { get; set; } = new List<User>();
     }
 }

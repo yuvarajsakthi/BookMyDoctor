@@ -1,0 +1,133 @@
+<div class="user-form-container">
+  <div class="header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>{{ isEditMode ? 'Edit' : 'Add' }} {{ userType === 'doctor' ? 'Doctor' : 'Patient' }}</h1>
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="user-form">
+        <!-- Common Fields -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Full Name</mat-label>
+            <input matInput formControlName="userName" placeholder="Enter full name">
+            <mat-error>{{ getFieldError('userName') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Enter email address">
+            <mat-error>{{ getFieldError('email') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Phone Number</mat-label>
+            <input matInput formControlName="phone" placeholder="Enter phone number">
+            <mat-error>{{ getFieldError('phone') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Gender</mat-label>
+            <mat-select formControlName="gender">
+              <mat-option *ngFor="let gender of genderOptions" [value]="gender.value">
+                {{ gender.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Password field for new users -->
+        <div class="form-row" *ngIf="!isEditMode">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" placeholder="Enter password">
+            <mat-error>{{ getFieldError('password') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Doctor-specific fields -->
+        <div *ngIf="userType === 'doctor'">
+          <div class="form-section-title">Doctor Information</div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Specialty</mat-label>
+              <input matInput formControlName="specialty" placeholder="Enter medical specialty">
+              <mat-error>{{ getFieldError('specialty') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Experience (Years)</mat-label>
+              <input matInput type="number" formControlName="experienceYears" placeholder="Years of experience">
+              <mat-error>{{ getFieldError('experienceYears') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Consultation Fee</mat-label>
+              <input matInput type="number" formControlName="consultationFee" placeholder="Fee amount">
+              <mat-error>{{ getFieldError('consultationFee') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Bio</mat-label>
+              <textarea matInput formControlName="bio" rows="4" placeholder="Enter doctor's bio"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Patient-specific fields -->
+        <div *ngIf="userType === 'patient'">
+          <div class="form-section-title">Patient Information</div>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Blood Group</mat-label>
+              <mat-select formControlName="bloodGroup">
+                <mat-option *ngFor="let bloodGroup of bloodGroupOptions" [value]="bloodGroup.value">
+                  {{ bloodGroup.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Emergency Contact</mat-label>
+              <input matInput formControlName="emergencyContactNumber" placeholder="Emergency contact number">
+              <mat-error>{{ getFieldError('emergencyContactNumber') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Date of Birth</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="dateOfBirth">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button mat-button type="button" (click)="goBack()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || userForm.invalid">
+            <mat-icon *ngIf="isLoading">hourglass_empty</mat-icon>
+            {{ isEditMode ? 'Update' : 'Create' }} {{ userType === 'doctor' ? 'Doctor' : 'Patient' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

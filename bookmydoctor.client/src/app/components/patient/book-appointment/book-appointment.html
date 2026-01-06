@@ -1,0 +1,52 @@
+<div class="book-appointment">
+  <h2>Book Appointment</h2>
+  
+  <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+    <mat-form-field appearance="outline">
+      <mat-label>Select Clinic</mat-label>
+      <mat-select formControlName="clinicId" required>
+        <mat-option *ngFor="let clinic of clinics" [value]="clinic.clinicId">
+          {{clinic.clinicName}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Select Doctor</mat-label>
+      <mat-select formControlName="doctorId" required>
+        <mat-option *ngFor="let doctor of doctors" [value]="doctor.userId">
+          {{doctor.userName}} - {{doctor.specialty}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Appointment Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="date" required>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Time</mat-label>
+      <input matInput type="time" formControlName="startTime" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Reason (Optional)</mat-label>
+      <textarea matInput formControlName="reason" rows="3"></textarea>
+    </mat-form-field>
+
+    <div class="actions">
+      <button mat-button type="button" (click)="goBack()">Cancel</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="appointmentForm.invalid || isSubmitting">
+        <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
+        Book Appointment
+      </button>
+    </div>
+  </form>
+
+  <div *ngIf="isLoading" class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+</div>

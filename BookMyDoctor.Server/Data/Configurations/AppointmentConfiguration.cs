@@ -11,7 +11,6 @@ namespace BookMyDoctor.Server.Data.Configurations
             builder.HasKey(a => a.AppointmentId);
             builder.Property(a => a.AppointmentDate).IsRequired();
             builder.Property(a => a.Status).IsRequired();
-            builder.Property(a => a.AppointmentType).IsRequired();
             
             builder.HasOne(a => a.Patient)
                    .WithMany()

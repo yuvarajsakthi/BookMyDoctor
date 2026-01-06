@@ -1,21 +1,37 @@
 import { Routes } from '@angular/router';
+import { HomeComponent } from './components/home/home';
 import { LoginComponent } from './components/auth/login/login';
 import { RegisterComponent } from './components/auth/register/register';
 import { ForgotPasswordComponent } from './components/auth/forgot-password/forgot-password';
-import { AdminDashboardComponent } from './components/dashboard/admin-dashboard/admin-dashboard';
-import { DoctorDashboardComponent } from './components/dashboard/doctor-dashboard/doctor-dashboard';
-import { PatientDashboardComponent } from './components/dashboard/patient-dashboard/patient-dashboard';
-import { PatientManagementComponent } from './components/admin/patient-management/patient-management';
-import { DoctorManagementComponent } from './components/admin/doctor-management/doctor-management';
+import { AdminDashboardComponent } from './components/admin/admin-dashboard/admin-dashboard';
+import { DoctorDashboardComponent } from './components/doctor/doctor-dashboard/doctor-dashboard';
+import { PatientDashboardComponent } from './components/patient/patient-dashboard/patient-dashboard';
+import { ClinicFormComponent } from './components/admin/clinic-form/clinic-form';
+import { ClinicManagementComponent } from './components/admin/clinic-management/clinic-management';
+import { UserManagement } from './components/admin/user-management/user-management';
+import { UserForm } from './components/admin/user-form/user-form';
+import { AppointmentManagementComponent } from './components/admin/appointment-management/appointment-management';
+import { DoctorProfileComponent } from './components/doctor/doctor-profile/doctor-profile';
+import { AvailabilityComponent } from './components/doctor/availability/availability';
+import { DoctorAppointmentsComponent } from './components/doctor/appointments/doctor-appointments';
+import { BookAppointmentComponent } from './components/patient/book-appointment/book-appointment';
+import { PatientAppointmentsComponent } from './components/patient/patient-appointments/patient-appointments';
+import { NearbyClinicsComponent } from './components/patient/nearby-clinics/nearby-clinics';
+import { PatientProfileComponent } from './components/patient/patient-profile/patient-profile';
+import { NotificationModalComponent } from './shared/notification-modal/notification-model';
+import { NotFoundComponent } from './components/shared/not-found/not-found';
 import { AuthGuard } from './core/guards/auth.guard';
+import { NoAuthGuard } from './core/guards/no-auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { DoctorGuard } from './core/guards/doctor.guard';
 import { PatientGuard } from './core/guards/patient.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/auth/login', pathMatch: 'full' },
+  { path: '', component: HomeComponent, canActivate: [NoAuthGuard] },
+  { path: 'home', component: HomeComponent, canActivate: [NoAuthGuard] },
   {
     path: 'auth',
+    canActivate: [NoAuthGuard],
     children: [
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
@@ -35,9 +51,37 @@ export const routes: Routes = [
     path: 'admin',
     canActivate: [AuthGuard, AdminGuard],
     children: [
-      { path: 'patients', component: PatientManagementComponent },
-      { path: 'doctors', component: DoctorManagementComponent }
+      { path: 'doctors', component: UserManagement },
+      { path: 'patients', component: UserManagement },
+      { path: 'users', component: UserManagement },
+      { path: 'user-form', component: UserForm },
+      { path: 'clinics', component: ClinicManagementComponent },
+      { path: 'clinics/create', component: ClinicFormComponent },
+      { path: 'clinics/edit/:clinicId', component: ClinicFormComponent },
+      { path: 'appointments', component: AppointmentManagementComponent }
     ]
   },
-  { path: '**', redirectTo: '/auth/login' }
+  {
+    path: 'doctor',
+    canActivate: [AuthGuard, DoctorGuard],
+    children: [
+      { path: 'profile', component: DoctorProfileComponent },
+      { path: 'appointments', component: DoctorAppointmentsComponent },
+      { path: 'availability', component: AvailabilityComponent },
+      { path: 'calendar', component: AvailabilityComponent },
+      { path: 'notifications', component: NotificationModalComponent }
+    ]
+  },
+  {
+    path: 'patient',
+    canActivate: [AuthGuard, PatientGuard],
+    children: [
+      { path: 'profile', component: PatientProfileComponent },
+      { path: 'book-appointment', component: BookAppointmentComponent },
+      { path: 'appointments', component: PatientAppointmentsComponent },
+      { path: 'nearby-clinics', component: NearbyClinicsComponent },
+      { path: 'notifications', component: NotificationModalComponent }
+    ]
+  },
+  { path: '**', component: NotFoundComponent }
 ];

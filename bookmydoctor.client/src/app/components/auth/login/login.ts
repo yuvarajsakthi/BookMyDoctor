@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../core/services/auth.service';
-import { LoginRequest, SendOtpRequestDto, VerifyOtpRequestDto } from '../../../core/models/auth.models';
+import { LoginRequestDto, SendOtpRequestDto, VerifyOtpRequestDto } from '../../../core/models/auth.models';
 
 @Component({
   selector: 'app-login',
@@ -19,8 +19,8 @@ import { LoginRequest, SendOtpRequestDto, VerifyOtpRequestDto } from '../../../c
   styleUrl: './login.scss'
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  otpForm: FormGroup;
+  loginForm!: FormGroup;
+  otpForm!: FormGroup;
   hidePassword = true;
   isLoading = false;
   loginMode: 'password' | 'otp' = 'password';
@@ -33,17 +33,28 @@ export class LoginComponent {
     private spinner: NgxSpinnerService,
     private toastr: ToastrService
   ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)]],
+    this.initializeForms();
+  }
+
+  private initializeForms() {
+    this.loginForm = this.createLoginForm();
+    this.otpForm = this.createOtpForm();
+  }
+
+  private createLoginForm(): FormGroup {
+    return this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
       password: ['', [
         Validators.required, 
         Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/)
       ]]
     });
+  }
 
-    this.otpForm = this.fb.group({
-      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)]],
+  private createOtpForm(): FormGroup {
+    return this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
       otp: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
     });
   }
@@ -52,29 +63,17 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.spinner.show();
-      const loginData: LoginRequest = this.loginForm.value;
+      const loginData: LoginRequestDto = this.loginForm.value;
       
       this.authService.loginWithEmail(loginData).subscribe({
         next: (response) => {
           this.isLoading = false;
           this.spinner.hide();
           if (response.success) {
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            this.toastr.success('Login successful!');
-            
-            const userRole = response.data.user?.userRole;
-            if (userRole === 'Admin') {
-              this.router.navigate(['/dashboard/admin']);
-            } else if (userRole === 'Doctor') {
-              this.router.navigate(['/dashboard/doctor']);
-            } else if (userRole === 'Patient') {
-              this.router.navigate(['/dashboard/patient']);
-            } else {
-              this.router.navigate(['/dashboard/patient']); // Default to patient
-            }
+            this.handleLoginSuccess(response);
           } else {
-            this.toastr.error(response.message);
+            const safeMessage = this.sanitizeMessage(response.message) || 'Login failed';
+            this.toastr.error(safeMessage);
           }
         },
         error: (error) => {
@@ -103,7 +102,7 @@ export class LoginComponent {
             this.otpSent = true;
             this.toastr.success('OTP sent to your email!');
           } else {
-            this.toastr.error(response.message);
+            this.toastr.error(this.sanitizeMessage(response.message) || 'Failed to send OTP');
           }
         },
         error: (error) => {
@@ -119,6 +118,7 @@ export class LoginComponent {
     if (this.otpForm.valid) {
       this.isLoading = true;
       this.spinner.show();
+      
       const otpLoginData: VerifyOtpRequestDto = this.otpForm.value;
       
       this.authService.loginWithOtp(otpLoginData).subscribe({
@@ -126,22 +126,9 @@ export class LoginComponent {
           this.isLoading = false;
           this.spinner.hide();
           if (response.success) {
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            this.toastr.success('Login successful!');
-            
-            const userRole = response.data.user?.userRole;
-            if (userRole === 'Admin') {
-              this.router.navigate(['/dashboard/admin']);
-            } else if (userRole === 'Doctor') {
-              this.router.navigate(['/dashboard/doctor']);
-            } else if (userRole === 'Patient') {
-              this.router.navigate(['/dashboard/patient']);
-            } else {
-              this.router.navigate(['/dashboard/patient']);
-            }
+            this.handleLoginSuccess(response);
           } else {
-            this.toastr.error(response.message);
+            this.toastr.error(this.sanitizeMessage(response.message) || 'OTP login failed');
           }
         },
         error: (error) => {
@@ -153,9 +140,80 @@ export class LoginComponent {
     }
   }
 
+  private handleLoginSuccess(response: any) {
+    if (!response?.data?.token || !response?.data?.user) {
+      this.toastr.error('Invalid login response');
+      return;
+    }
+    
+    sessionStorage.setItem('token', response.data.token);
+    sessionStorage.setItem('user', JSON.stringify(response.data.user));
+    this.toastr.success('Login successful!');
+    this.navigateBasedOnRole(response.data.user?.userRole);
+  }
+
+  private sanitizeMessage(message?: string): string {
+    if (!message) return '';
+    return message.replace(/<[^>]*>/g, '').substring(0, 200);
+  }
+
+  private navigateBasedOnRole(userRole: string | number) {
+    if (userRole == null) {
+      this.toastr.warning('Invalid user role, redirecting to patient dashboard');
+      this.router.navigate(['/dashboard/patient']).catch(err => {
+        console.error('Navigation failed:', err);
+        this.toastr.error('Navigation failed');
+      });
+      return;
+    }
+    
+    let route: string;
+    
+    // Handle both string and number roles
+    if (typeof userRole === 'string') {
+      switch (userRole.toLowerCase()) {
+        case 'admin':
+          route = '/dashboard/admin';
+          break;
+        case 'doctor':
+          route = '/dashboard/doctor';
+          break;
+        case 'patient':
+          route = '/dashboard/patient';
+          break;
+        default:
+          this.toastr.warning('Unknown user role, redirecting to patient dashboard');
+          route = '/dashboard/patient';
+      }
+    } else {
+      switch (userRole) {
+        case 0:
+          route = '/dashboard/admin';
+          break;
+        case 1:
+          route = '/dashboard/doctor';
+          break;
+        case 2:
+          route = '/dashboard/patient';
+          break;
+        default:
+          this.toastr.warning('Unknown user role, redirecting to patient dashboard');
+          route = '/dashboard/patient';
+      }
+    }
+    
+    this.router.navigate([route]).catch(err => {
+      console.error('Navigation failed:', err);
+      this.toastr.error('Navigation failed');
+    });
+  }
+
   switchLoginMode(mode: 'password' | 'otp') {
-    this.loginMode = mode;
-    this.otpSent = false;
-    this.isLoading = false;
+    if (!this.isLoading) {
+      this.loginMode = mode;
+      this.otpSent = false;
+      this.loginForm.reset();
+      this.otpForm.reset();
+    }
   }
 }

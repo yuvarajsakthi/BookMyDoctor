@@ -1,128 +1,488 @@
-/* You can add global styles to this file, and also import other style files */
 @use 'ngx-toastr/toastr';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Christmas-themed global background */
+/* Enterprise Design System */
+:root {
+  /* Light Theme Colors */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+  
+  --secondary-50: #f8fafc;
+  --secondary-100: #f1f5f9;
+  --secondary-200: #e2e8f0;
+  --secondary-300: #cbd5e1;
+  --secondary-400: #94a3b8;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+  --secondary-700: #334155;
+  --secondary-800: #1e293b;
+  --secondary-900: #0f172a;
+  
+  --success-500: #10b981;
+  --warning-500: #f59e0b;
+  --error-500: #ef4444;
+  --info-500: #3b82f6;
+  
+  /* Theme Variables */
+  --bg-primary: var(--secondary-50);
+  --bg-secondary: #ffffff;
+  --bg-tertiary: var(--secondary-100);
+  --text-primary: var(--secondary-900);
+  --text-secondary: var(--secondary-700);
+  --text-muted: var(--secondary-500);
+  --border-color: var(--secondary-200);
+  --border-light: var(--secondary-100);
+  --shadow-color: rgb(0 0 0 / 0.1);
+  --card-bg: #ffffff;
+  --header-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  
+  /* Spacing System (8px base) */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem;  /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem;    /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem;  /* 24px */
+  --space-8: 2rem;    /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem;   /* 48px */
+  --space-16: 4rem;   /* 64px */
+  --space-20: 5rem;   /* 80px */
+  
+  /* Typography */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-base: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Reset & Base Styles */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-base), color var(--transition-base);
   height: 100vh;
   overflow: hidden;
-  background: linear-gradient(135deg, 
-    #0f4c3a 0%,
-    #1e5f47 25%, 
-    #2d7054 50%, 
-    #c41e3a 75%, 
-    #8b0000 100%
-  );
-  background-attachment: fixed;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Christmas lights effect */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(circle at 10% 20%, rgba(255, 215, 0, 0.3) 0%, transparent 2%),
-    radial-gradient(circle at 30% 10%, rgba(255, 0, 0, 0.3) 0%, transparent 2%),
-    radial-gradient(circle at 50% 30%, rgba(0, 255, 0, 0.3) 0%, transparent 2%),
-    radial-gradient(circle at 70% 15%, rgba(0, 0, 255, 0.3) 0%, transparent 2%),
-    radial-gradient(circle at 90% 25%, rgba(255, 215, 0, 0.3) 0%, transparent 2%);
-  pointer-events: none;
-  z-index: -1;
-  animation: twinkle 3s ease-in-out infinite alternate;
-}
-
-@keyframes twinkle {
-  0% { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-/* Ensure app container has proper styling */
+/* Layout System */
 .app-container {
-  position: relative;
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-primary);
+  transition: background var(--transition-base);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
   overflow: hidden;
 }
 
-/* Christmas-themed cards */
-.mat-card, .dashboard-card, .login-container, .register-container, .forgot-password-container {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(196, 30, 58, 0.6);
-  box-shadow: 0 8px 32px rgba(196, 30, 58, 0.3);
-  border-radius: 50px;
+.sidebar {
+  width: 280px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), background-color var(--transition-base), border-color var(--transition-base);
 }
 
-/* Table containers */
-.table-container, .patient-management-container, .doctor-management-container {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 40px;
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-/* Tables */
-.patients-table, .doctors-table, .users-table {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 30px;
+.page-content {
+  flex: 1;
+  padding: var(--space-6);
+  overflow-y: auto;
+  background: var(--bg-primary);
+  transition: background-color var(--transition-base);
 }
 
-.patients-table th, .doctors-table th, .users-table th {
-  background: rgba(15, 76, 58, 0.8) !important;
-  color: #ffd700 !important;
+/* Component Styles */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast), background-color var(--transition-base), border-color var(--transition-base);
 }
 
-.patients-table td, .doctors-table td, .users-table td {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #2d3748 !important;
+.card:hover {
+  box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
 }
 
-/* Form containers */
-.login-form, .register-form, .forgot-password-form {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 40px;
+.card-header {
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
-/* Input fields */
-.mat-form-field {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-radius: 25px;
+.card-body {
+  padding: var(--space-6);
 }
 
-/* Step containers */
-.step-container {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 35px;
+.card-footer {
+  padding: var(--space-6);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
-/* Buttons */
-.mat-raised-button {
-  border-radius: 25px !important;
+/* Button System */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-/* Header Christmas styling */
-.app-header {
-  background: linear-gradient(90deg, #0f4c3a 0%, #c41e3a 100%) !important;
-  backdrop-filter: blur(15px);
-  border-bottom: 3px solid #ffd700;
-  color: white !important;
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.app-header h1 {
-  color: #ffd700 !important;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+.btn-primary {
+  background: var(--primary-600);
+  color: white;
+  border-color: var(--primary-600);
 }
 
-/* Christmas button styling */
-.mat-raised-button.mat-primary {
-  background-color: #c41e3a !important;
-  border: 2px solid #ffd700 !important;
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-700);
+  border-color: var(--primary-700);
 }
 
-.mat-raised-button.mat-accent {
-  background-color: #0f4c3a !important;
-  border: 2px solid #ffd700 !important;
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--border-color);
+  border-color: var(--text-muted);
+}
+
+.btn-success {
+  background: var(--success-500);
+  color: white;
+}
+
+.btn-warning {
+  background: var(--warning-500);
+  color: white;
+}
+
+.btn-error {
+  background: var(--error-500);
+  color: white;
+}
+
+.btn-sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.btn-lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-lg);
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color var(--transition-base);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-base), color var(--transition-base);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgb(14 165 233 / 0.1);
+}
+
+.form-input.error {
+  border-color: var(--error-500);
+}
+
+.error-message {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--error-500);
+}
+
+/* Table Styles */
+.table-container {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
+  overflow: hidden;
+  transition: background-color var(--transition-base);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: var(--bg-tertiary);
+  padding: var(--space-4);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+}
+
+.table td {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-primary);
+  transition: color var(--transition-base), border-color var(--transition-base);
+}
+
+.table tbody tr:hover {
+  background: var(--bg-tertiary);
+  transition: background-color var(--transition-fast);
+}
+
+/* Utility Classes */
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-2xl { font-size: var(--font-size-2xl); }
+.text-3xl { font-size: var(--font-size-3xl); }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.text-primary { color: var(--primary-600); }
+.text-secondary { color: var(--text-secondary); }
+.text-success { color: var(--success-500); }
+.text-warning { color: var(--warning-500); }
+.text-error { color: var(--error-500); }
+
+.bg-primary { background-color: var(--primary-600); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-success { background-color: var(--success-500); }
+.bg-warning { background-color: var(--warning-500); }
+.bg-error { background-color: var(--error-500); }
+
+.p-2 { padding: var(--space-2); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.m-2 { margin: var(--space-2); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-2 { gap: var(--space-2); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+
+.rounded { border-radius: var(--radius-base); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+
+.shadow { box-shadow: var(--shadow-base); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .page-content {
+    padding: var(--space-4);
+  }
+}
+
+/* Angular Material Overrides */
+.mat-mdc-card {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color) !important;
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  transition: background-color var(--transition-base), color var(--transition-base) !important;
+}
+
+.mat-mdc-button {
+  border-radius: var(--radius-md) !important;
+}
+
+.mat-mdc-form-field {
+  .mdc-text-field {
+    border-radius: var(--radius-md) !important;
+    background-color: var(--bg-secondary) !important;
+  }
+  
+  .mdc-text-field--filled {
+    background-color: var(--bg-secondary) !important;
+  }
+  
+  .mdc-floating-label {
+    color: var(--text-muted) !important;
+  }
+  
+  .mdc-text-field__input {
+    color: var(--text-primary) !important;
+  }
+}
+
+.mat-mdc-dialog-container {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-select-panel {
+  background-color: var(--card-bg) !important;
+}
+
+.mat-mdc-option {
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-option:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
+.mat-mdc-table {
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.mat-mdc-header-row {
+  background-color: var(--bg-tertiary) !important;
+}
+
+.mat-mdc-row:hover {
+  background-color: var(--bg-tertiary) !important;
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--secondary-200);
+  border-top: 2px solid var(--primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

@@ -14,6 +14,13 @@ namespace BookMyDoctor.Server.Data.Configurations
             builder.Property(u => u.PasswordHash).IsRequired().HasMaxLength(500);
             builder.Property(u => u.UserRole).IsRequired();
             builder.HasIndex(u => u.Email).IsUnique();
+            
+            // Patient-specific configurations
+            builder.Property(u => u.EmergencyContact).HasMaxLength(20);
+            
+            // Doctor-specific configurations
+            builder.Property(u => u.ConsultationFee).HasColumnType("decimal(10,2)");
+            builder.Property(u => u.Specialty).HasMaxLength(100);
         }
     }
 }

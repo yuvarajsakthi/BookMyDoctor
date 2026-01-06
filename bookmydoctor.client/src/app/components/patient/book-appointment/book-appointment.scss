@@ -1,0 +1,23 @@
+.book-appointment {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
