@@ -33,6 +33,45 @@ namespace BookMyDoctor.Server.Controllers
             }
         }
 
+        [HttpGet("clinic/{clinicId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetDoctorsByClinic(int clinicId)
+        {
+            var doctors = await _userService.GetDoctorsByClinicAsync(clinicId);
+            return Ok(new ApiResponse<object> { Success = true, Data = doctors });
+        }
+
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SearchDoctors([FromQuery] string? specialty, [FromQuery] string? location, [FromQuery] DateTime? date)
+        {
+            try
+            {
+                var doctors = await _userService.SearchDoctorsAsync(specialty, location, date);
+                return Ok(new ApiResponse<object> { Success = true, Data = doctors });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object> { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpGet("{doctorId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetDoctorProfile(int doctorId)
+        {
+            try
+            {
+                var doctor = await _userService.GetDoctorByIdAsync(doctorId);
+                if (doctor == null) return NotFound(new ApiResponse<object> { Success = false, Message = "Doctor not found" });
+                return Ok(new ApiResponse<object> { Success = true, Data = doctor });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object> { Success = false, Message = ex.Message });
+            }
+        }
+
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] DoctorProfileUpdateDto request)
         {

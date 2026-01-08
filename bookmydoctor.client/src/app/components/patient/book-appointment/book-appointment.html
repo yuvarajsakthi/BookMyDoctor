@@ -1,52 +1,142 @@
-<div class="book-appointment">
-  <h2>Book Appointment</h2>
-  
-  <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
-    <mat-form-field appearance="outline">
-      <mat-label>Select Clinic</mat-label>
-      <mat-select formControlName="clinicId" required>
-        <mat-option *ngFor="let clinic of clinics" [value]="clinic.clinicId">
-          {{clinic.clinicName}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Select Doctor</mat-label>
-      <mat-select formControlName="doctorId" required>
-        <mat-option *ngFor="let doctor of doctors" [value]="doctor.userId">
-          {{doctor.userName}} - {{doctor.specialty}}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Appointment Date</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="date" required>
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Time</mat-label>
-      <input matInput type="time" formControlName="startTime" required>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Reason (Optional)</mat-label>
-      <textarea matInput formControlName="reason" rows="3"></textarea>
-    </mat-form-field>
-
-    <div class="actions">
-      <button mat-button type="button" (click)="goBack()">Cancel</button>
-      <button mat-raised-button color="primary" type="submit" [disabled]="appointmentForm.invalid || isSubmitting">
-        <mat-spinner diameter="20" *ngIf="isSubmitting"></mat-spinner>
-        Book Appointment
-      </button>
-    </div>
-  </form>
-
-  <div *ngIf="isLoading" class="loading">
-    <mat-spinner></mat-spinner>
+<div class="booking-container">
+  <div class="header">
+    <h1>Book Appointment</h1>
+    <p>Schedule your visit with our healthcare professionals</p>
   </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <mat-spinner></mat-spinner>
+      <p>Loading clinics...</p>
+    </div>
+  }
+
+  @if (!isLoading) {
+    <div class="form-container">
+      <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" class="appointment-form">
+        <div class="form-section">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Select Clinic</mat-label>
+            <mat-select formControlName="clinicId" required>
+              @for (clinic of clinics; track clinic) {
+                <mat-option [value]="clinic.clinicId">
+                  <div class="select-option">
+                    <span class="option-title">{{clinic.clinicName}}</span>
+                    <span class="option-subtitle">{{clinic.address}}</span>
+                  </div>
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matSuffix>location_on</mat-icon>
+          </mat-form-field>
+        </div>
+        @if (appointmentForm.get('clinicId')?.value) {
+          <div class="form-section">
+            @if (isLoadingDoctors) {
+              <div class="loading-inline">
+                <mat-spinner diameter="20"></mat-spinner>
+                <span>Loading doctors...</span>
+              </div>
+            }
+            @if (!isLoadingDoctors && doctors.length > 0) {
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Select Doctor</mat-label>
+                <mat-select formControlName="doctorId" required>
+                  @for (doctor of doctors; track doctor) {
+                    <mat-option [value]="doctor.userId">
+                      <div class="select-option">
+                        <span class="option-title">Dr. {{doctor.userName}}</span>
+                        <span class="option-subtitle">
+                          {{doctor.specialty}}
+                          @if (doctor.experienceYears) {
+                            <span> • {{doctor.experienceYears}} years</span>
+                          }
+                          @if (doctor.consultationFee) {
+                            <span> • ₹{{doctor.consultationFee}}</span>
+                          }
+                        </span>
+                        @if (doctor.availableDays) {
+                          <span class="availability">Available: {{doctor.availableDays}}</span>
+                        }
+                      </div>
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>person</mat-icon>
+              </mat-form-field>
+            }
+            @if (!isLoadingDoctors && doctors.length === 0) {
+              <div class="empty-message">
+                <mat-icon>info</mat-icon>
+                <span>No doctors available at this clinic</span>
+              </div>
+            }
+          </div>
+        }
+        @if (appointmentForm.get('doctorId')?.value) {
+          <div class="form-section">
+            <div class="date-time-row">
+              <mat-form-field appearance="outline" class="form-field date-field">
+                <mat-label>Select Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="date"
+                  [matDatepickerFilter]="dateFilter" [min]="minDate" required>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+              @if (!isLoadingSlots && availableTimeSlots.length > 0) {
+                <div class="time-slots">
+                  <label class="time-label">Available Times</label>
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Select Time</mat-label>
+                    <mat-select formControlName="startTime" required>
+                      @for (slot of availableTimeSlots; track slot) {
+                        <mat-option [value]="slot.value">
+                          {{slot.display}}
+                        </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matSuffix>schedule</mat-icon>
+                  </mat-form-field>
+                </div>
+              }
+            </div>
+            @if (isLoadingSlots) {
+              <div class="loading-inline">
+                <mat-spinner diameter="20"></mat-spinner>
+                <span>Loading time slots...</span>
+              </div>
+            }
+            @if (!isLoadingSlots && appointmentForm.get('date')?.value && availableTimeSlots.length === 0) {
+              <div class="empty-message">
+                <mat-icon>schedule</mat-icon>
+                <span>No available slots for this date</span>
+              </div>
+            }
+          </div>
+        }
+        @if (appointmentForm.get('startTime')?.value) {
+          <div class="form-section">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Reason for Visit (Optional)</mat-label>
+              <textarea matInput formControlName="reason" rows="3"
+              placeholder="Describe your symptoms or reason for the appointment"></textarea>
+              <mat-icon matSuffix>edit_note</mat-icon>
+            </mat-form-field>
+          </div>
+        }
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="goBack()" class="cancel-btn">
+            Cancel
+          </button>
+          <button mat-raised-button color="primary" type="submit"
+            [disabled]="appointmentForm.invalid || isSubmitting" class="submit-btn">
+            @if (isSubmitting) {
+              <mat-spinner diameter="16"></mat-spinner>
+            }
+            {{isSubmitting ? 'Booking...' : 'Book Appointment'}}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
 </div>

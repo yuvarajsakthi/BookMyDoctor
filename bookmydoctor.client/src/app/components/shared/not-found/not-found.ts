@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-not-found',
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="not-found-container">
       <div class="not-found-content">

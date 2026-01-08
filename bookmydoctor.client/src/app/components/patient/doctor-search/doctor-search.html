@@ -1,0 +1,109 @@
+<div class="doctor-search-container">
+  <!-- Search Filters -->
+  <mat-card class="search-filters">
+    <mat-card-header>
+      <mat-card-title>Find Your Doctor</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="filter-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Specialty</mat-label>
+          <mat-select [(value)]="searchFilters.specialty">
+            <mat-option value="">All Specialties</mat-option>
+            @for (specialty of specialties; track specialty) {
+              <mat-option [value]="specialty">
+                {{specialty}}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Location</mat-label>
+          <input matInput [(ngModel)]="searchFilters.location" placeholder="Enter city or area">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Available Date</mat-label>
+          <input matInput type="date" [(ngModel)]="searchFilters.date">
+        </mat-form-field>
+      </div>
+
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="searchDoctors()">
+          <mat-icon>search</mat-icon>
+          Search Doctors
+        </button>
+        <button mat-button (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+          Clear Filters
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Spinner -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Searching for doctors...</p>
+    </div>
+  }
+
+  <!-- Doctor Results -->
+  @if (!isLoading && doctors.length > 0) {
+    <div class="doctors-grid">
+      @for (doctor of doctors; track doctor) {
+        <mat-card class="doctor-card">
+          <mat-card-header>
+            <div mat-card-avatar class="doctor-avatar">
+              <mat-icon>person</mat-icon>
+            </div>
+            <mat-card-title>Dr. {{doctor.userName}}</mat-card-title>
+            <mat-card-subtitle>{{doctor.specialty}}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="doctor-info">
+              <div class="info-item">
+                <mat-icon>work</mat-icon>
+                <span>{{doctor.experienceYears}} years experience</span>
+              </div>
+              <div class="info-item">
+                <mat-icon>attach_money</mat-icon>
+                <span>₹{{doctor.consultationFee}} consultation fee</span>
+              </div>
+              @if (doctor.phone) {
+                <div class="info-item">
+                  <mat-icon>phone</mat-icon>
+                  <span>{{doctor.phone}}</span>
+                </div>
+              }
+            </div>
+            @if (doctor.bio) {
+              <p class="doctor-bio">{{doctor.bio}}</p>
+            }
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-button color="primary" (click)="viewDoctorProfile(doctor.userId || doctor.doctorId)">
+              <mat-icon>visibility</mat-icon>
+              View Profile
+            </button>
+            <button mat-raised-button color="accent" (click)="bookAppointment(doctor.userId || doctor.doctorId)">
+              <mat-icon>event</mat-icon>
+              Book Appointment
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- No Results -->
+  @if (!isLoading && doctors.length === 0) {
+    <div class="no-results">
+      <mat-icon>search_off</mat-icon>
+      <h3>No doctors found</h3>
+      <p>Try adjusting your search filters to find more doctors.</p>
+    </div>
+  }
+</div>

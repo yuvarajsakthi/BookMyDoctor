@@ -1,0 +1,150 @@
+.payment-history-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+
+    h1 {
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #666;
+      font-size: 16px;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+
+    mat-spinner {
+      margin-bottom: 16px;
+    }
+  }
+
+  .no-payments {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    h3 {
+      margin: 16px 0 8px;
+      font-weight: 500;
+    }
+
+    p {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+  }
+
+  .payments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+
+    .payment-card {
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      mat-card-header {
+        .payment-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+
+          h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+          }
+
+          mat-chip {
+            &.status-completed {
+              background-color: #4caf50;
+              color: white;
+            }
+
+            &.status-pending {
+              background-color: #ff9800;
+              color: white;
+            }
+
+            &.status-failed {
+              background-color: #f44336;
+              color: white;
+            }
+          }
+        }
+      }
+
+      .payment-details {
+        margin: 16px 0;
+
+        .detail-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 12px;
+
+          mat-icon {
+            color: #666;
+            font-size: 18px;
+            width: 18px;
+            flex-shrink: 0;
+          }
+
+          .label {
+            font-weight: 500;
+            color: #666;
+            min-width: 80px;
+          }
+
+          .value {
+            color: #333;
+            flex: 1;
+          }
+        }
+      }
+
+      mat-card-actions {
+        padding: 16px;
+
+        button {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .payment-history-container {
+    padding: 16px;
+
+    .payments-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

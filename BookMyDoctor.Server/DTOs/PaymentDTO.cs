@@ -27,5 +27,6 @@ namespace BookMyDoctor.Server.DTOs
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? PaidAt { get; set; }
+        public string AppointmentDetails { get; set; } = string.Empty;
     }
 }

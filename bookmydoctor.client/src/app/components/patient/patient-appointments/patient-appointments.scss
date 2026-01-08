@@ -1,16 +1,476 @@
-.patient-appointments {
-  padding: 20px;
+.appointments-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
 }
 
-.loading {
-  display: flex;
-  justify-content: center;
-  padding: 40px;
-}
-
-.no-data {
+.header {
   text-align: center;
-  padding: 40px;
-  color: #666;
-  font-style: italic;
+  margin-bottom: 40px;
+  
+  h1 {
+    color: #2c3e50;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  p {
+    color: #5a6c7d;
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+}
+
+.appointments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 28px;
+}
+
+.appointment-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.card-header {
+  padding: 28px 28px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(236, 240, 241, 0.5);
+  background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+}
+
+.doctor-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  
+  .doctor-icon {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border-radius: 50%;
+    padding: 12px;
+    font-size: 28px;
+    width: 52px;
+    height: 52px;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  }
+  
+  h3 {
+    color: #2c3e50;
+    margin: 0 0 6px 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  
+  .appointment-reason {
+    color: #7f8c8d;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  
+  &.status-pending {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+  }
+  
+  &.status-booked {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+  }
+  
+  &.status-completed {
+    background: linear-gradient(135deg, #27ae60, #229954);
+    color: white;
+  }
+  
+  &.status-cancelled {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+  }
+  
+  &.status-payment-done {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+  }
+  
+  &.status-default {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+  }
+}
+
+.card-content {
+  padding: 20px 28px;
+}
+
+.appointment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: rgba(248, 249, 250, 0.5);
+  border-radius: 12px;
+  
+  mat-icon {
+    color: #3498db;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  span {
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+}
+
+.card-actions {
+  padding: 20px 28px 28px;
+  display: flex;
+  gap: 16px;
+  
+  button {
+    flex: 1;
+    height: 50px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+    
+    &[color="primary"] {
+      background: linear-gradient(135deg, #27ae60, #229954);
+      box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+      }
+    }
+  }
+}
+
+// Payment Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.payment-modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #ecf0f1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h2 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #7f8c8d;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #f8f9fa;
+      color: #2c3e50;
+    }
+    
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.appointment-summary {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  
+  .summary-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    
+    .doctor-avatar {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: white;
+      border-radius: 50%;
+      padding: 12px;
+      font-size: 28px;
+      width: 52px;
+      height: 52px;
+    }
+    
+    .doctor-details {
+      h3 {
+        margin: 0 0 4px 0;
+        color: #2c3e50;
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0;
+        color: #7f8c8d;
+        font-size: 0.95rem;
+      }
+    }
+  }
+  
+  .appointment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      mat-icon {
+        color: #3498db;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+      
+      span {
+        color: #2c3e50;
+        font-size: 0.95rem;
+      }
+    }
+  }
+}
+
+.payment-details {
+  .amount-section {
+    h4 {
+      margin: 0 0 16px 0;
+      color: #2c3e50;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .amount-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #ecf0f1;
+      
+      &.total {
+        border-bottom: none;
+        border-top: 2px solid #3498db;
+        margin-top: 8px;
+        padding-top: 16px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        
+        .amount {
+          color: #3498db;
+          font-size: 1.3rem;
+          font-weight: 700;
+        }
+      }
+      
+      span {
+        color: #2c3e50;
+      }
+      
+      .amount {
+        font-weight: 600;
+        color: #27ae60;
+      }
+    }
+  }
+}
+
+.modal-footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  gap: 12px;
+  
+  button {
+    flex: 1;
+    height: 48px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    
+    &[color="primary"] {
+      background: #28a745;
+      
+      &:hover {
+        background: #218838;
+      }
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .appointments-container {
+    padding: 16px;
+  }
+  
+  .appointments-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .appointment-card {
+    border-radius: 12px;
+  }
+  
+  .card-header {
+    padding: 20px 20px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .doctor-info {
+    width: 100%;
+  }
+  
+  .status-badge {
+    align-self: flex-end;
+  }
+  
+  .card-content {
+    padding: 12px 20px;
+  }
+  
+  .card-actions {
+    padding: 12px 20px 20px;
+  }
+  
+  .payment-modal {
+    width: 95%;
+    margin: 16px;
+  }
+  
+  .modal-header {
+    padding: 20px 20px 12px;
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+  
+  .modal-body {
+    padding: 20px;
+  }
+  
+  .appointment-summary {
+    padding: 16px;
+    
+    .summary-header {
+      gap: 12px;
+      
+      .doctor-avatar {
+        padding: 10px;
+        font-size: 24px;
+        width: 44px;
+        height: 44px;
+      }
+    }
+  }
+  
+  .modal-footer {
+    padding: 12px 20px 20px;
+    
+    button {
+      height: 44px;
+    }
+  }
 }

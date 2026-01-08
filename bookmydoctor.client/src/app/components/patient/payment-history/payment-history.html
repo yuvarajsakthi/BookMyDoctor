@@ -1,0 +1,73 @@
+<div class="payment-history-container">
+  <div class="header">
+    <h1>Payment History</h1>
+    <p>View your payment records and download invoices</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Loading payment history...</p>
+    </div>
+  }
+
+  @if (!isLoading && payments.length === 0) {
+    <div class="no-payments">
+      <mat-icon>receipt_long</mat-icon>
+      <h3>No Payment History</h3>
+      <p>Your payment records will appear here once you make payments.</p>
+    </div>
+  }
+
+  @if (!isLoading && payments.length > 0) {
+    <div class="payments-grid">
+      @for (payment of payments; track payment) {
+        <mat-card class="payment-card">
+          <mat-card-header>
+            <div class="payment-info">
+              <h3>Payment #{{payment.paymentId}}</h3>
+              <mat-chip [class]="getStatusClass(payment.paymentStatus)">{{payment.paymentStatus}}</mat-chip>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="payment-details">
+              <div class="detail-row">
+                <mat-icon>attach_money</mat-icon>
+                <span class="label">Amount:</span>
+                <span class="value">{{payment.currency}} {{payment.amount}}</span>
+              </div>
+              @if (payment.description) {
+                <div class="detail-row">
+                  <mat-icon>description</mat-icon>
+                  <span class="label">Description:</span>
+                  <span class="value">{{payment.description}}</span>
+                </div>
+              }
+              <div class="detail-row">
+                <mat-icon>calendar_today</mat-icon>
+                <span class="label">Date:</span>
+                <span class="value">{{formatDate(payment.createdAt)}}</span>
+              </div>
+              @if (payment.paidAt) {
+                <div class="detail-row">
+                  <mat-icon>check_circle</mat-icon>
+                  <span class="label">Paid At:</span>
+                  <span class="value">{{formatDate(payment.paidAt)}}</span>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+          <mat-card-actions>
+            @if (payment.paymentStatus.toLowerCase() === 'completed') {
+              <button
+                mat-button color="primary" (click)="downloadInvoice(payment.paymentId)">
+                <mat-icon>download</mat-icon>
+                Download Invoice
+              </button>
+            }
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

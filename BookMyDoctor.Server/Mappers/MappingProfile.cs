@@ -23,13 +23,21 @@ namespace BookMyDoctor.Server.Mappers
             
             // Availability mappings
             CreateMap<Availability, AvailabilityResponseDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AvailabilityId))
+                .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => (int)src.DayOfWeek))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime.ToString("HH:mm")))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime.ToString("HH:mm")))
                 .ForMember(dest => dest.DoctorName, opt => opt.MapFrom(src => src.Doctor.UserName));
             
             // Notification Mappings
             CreateMap<Notification, NotificationResponseDto>();
             
             // Payment Mappings
-            CreateMap<PaymentModel, PaymentResponseDto>();
+            CreateMap<PaymentModel, PaymentResponseDto>()
+                .ForMember(dest => dest.AppointmentDetails, opt => opt.MapFrom(src => 
+                    src.Appointment != null ? 
+                    $"{src.Appointment.Patient.UserName} - Dr. {src.Appointment.Doctor.UserName} ({src.Appointment.AppointmentDate:MMM dd, yyyy})" : 
+                    "N/A"));
         }
     }
 }

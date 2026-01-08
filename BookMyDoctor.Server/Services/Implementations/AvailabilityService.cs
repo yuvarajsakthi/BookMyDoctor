@@ -23,14 +23,51 @@ namespace BookMyDoctor.Server.Services.Implementations
             return _mapper.Map<IEnumerable<AvailabilityResponseDto>>(availability);
         }
 
+        public async Task<IEnumerable<object>> GetAvailableSlotsAsync(int doctorId, string date)
+        {
+            if (!DateOnly.TryParse(date, out var selectedDate))
+                return new List<object>();
+
+            var dayOfWeek = selectedDate.DayOfWeek;
+            var availability = await _unitOfWork.Availabilities.FindAsync(
+                a => a.DoctorId == doctorId && a.DayOfWeek == dayOfWeek && a.IsActive);
+
+            if (!availability.Any())
+                return new List<object>();
+
+            var bookedSlots = await _unitOfWork.Appointments.FindAsync(
+                a => a.DoctorId == doctorId && a.AppointmentDate == selectedDate);
+
+            var slots = new List<object>();
+            foreach (var avail in availability)
+            {
+                var currentTime = avail.StartTime;
+                while (currentTime < avail.EndTime)
+                {
+                    var isBooked = bookedSlots.Any(b => b.StartTime == currentTime);
+                    if (!isBooked)
+                    {
+                        slots.Add(new
+                        {
+                            value = currentTime.ToString("HH:mm"),
+                            display = currentTime.ToString("hh:mm tt")
+                        });
+                    }
+                    currentTime = currentTime.AddMinutes(30);
+                }
+            }
+
+            return slots;
+        }
+
         public async Task AddAvailabilityAsync(int doctorId, AvailabilityDto request)
         {
             var availability = new Availability
             {
                 DoctorId = doctorId,
-                DayOfWeek = request.DayOfWeek,
-                StartTime = request.StartTime,
-                EndTime = request.EndTime,
+                DayOfWeek = (DayOfWeek)request.DayOfWeek,
+                StartTime = TimeOnly.ParseExact(request.StartTime, "HH:mm"),
+                EndTime = TimeOnly.ParseExact(request.EndTime, "HH:mm"),
                 IsActive = true
             };
 

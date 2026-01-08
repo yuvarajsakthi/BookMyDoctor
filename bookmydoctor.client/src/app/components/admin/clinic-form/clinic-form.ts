@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,14 +15,13 @@ import { ClinicCreateDto, ClinicUpdateDto } from '../../../core/models/admin.mod
   selector: 'app-clinic-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule
-  ],
+],
   templateUrl: './clinic-form.html',
   styleUrl: './clinic-form.scss'
 })

@@ -31,12 +31,48 @@ export class PatientService {
     return this.http.get(`${this.apiUrl}/users/doctors/search?${params}`);
   }
 
+  getDoctorsByClinic(clinicId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/doctor/clinic/${clinicId}`);
+  }
+
+  getDoctorAvailability(doctorId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/availability/doctor/${doctorId}`);
+  }
+
+  getAvailableSlots(doctorId: number, date: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/availability/doctor/${doctorId}/slots?date=${date}`);
+  }
+
   getPatientAppointments(): Observable<any> {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      throw new Error('User not authenticated');
+    }
     return this.http.get(`${this.apiUrl}/appointments/patient`);
   }
 
   bookAppointment(appointmentData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/appointments`, appointmentData);
+  }
+
+  cancelAppointment(appointmentId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/appointments/${appointmentId}/cancel`, {});
+  }
+
+  rescheduleAppointment(rescheduleData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/appointments/${rescheduleData.appointmentId}/reschedule`, rescheduleData);
+  }
+
+  getAppointmentById(appointmentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/appointments/${appointmentId}`);
+  }
+
+  getPaymentHistory(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/payment/history`);
+  }
+
+  downloadInvoice(paymentId: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/payment/invoice/${paymentId}`, { responseType: 'blob' });
   }
 
   private getCurrentUserId(): number {

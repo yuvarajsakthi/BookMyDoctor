@@ -13,12 +13,17 @@ import { UserForm } from './components/admin/user-form/user-form';
 import { AppointmentManagementComponent } from './components/admin/appointment-management/appointment-management';
 import { DoctorProfileComponent } from './components/doctor/doctor-profile/doctor-profile';
 import { AvailabilityComponent } from './components/doctor/availability/availability';
-import { DoctorAppointmentsComponent } from './components/doctor/appointments/doctor-appointments';
+import { DoctorAppointmentsComponent } from './components/doctor/doctor-appointments/doctor-appointments';
 import { BookAppointmentComponent } from './components/patient/book-appointment/book-appointment';
 import { PatientAppointmentsComponent } from './components/patient/patient-appointments/patient-appointments';
 import { NearbyClinicsComponent } from './components/patient/nearby-clinics/nearby-clinics';
 import { PatientProfileComponent } from './components/patient/patient-profile/patient-profile';
-import { NotificationModalComponent } from './shared/notification-modal/notification-model';
+import { DoctorSearchComponent } from './components/patient/doctor-search/doctor-search';
+import { DoctorProfile } from './components/patient/doctor-profile/doctor-profile';
+import { RescheduleAppointment } from './components/patient/reschedule-appointment/reschedule-appointment';
+import { DoctorNotifications } from './components/doctor/doctor-notifications/doctor-notifications';
+import { PaymentHistory } from './components/patient/payment-history/payment-history';
+import { Notifications } from './components/patient/notifications/notifications';
 import { NotFoundComponent } from './components/shared/not-found/not-found';
 import { AuthGuard } from './core/guards/auth.guard';
 import { NoAuthGuard } from './core/guards/no-auth.guard';
@@ -69,7 +74,7 @@ export const routes: Routes = [
       { path: 'appointments', component: DoctorAppointmentsComponent },
       { path: 'availability', component: AvailabilityComponent },
       { path: 'calendar', component: AvailabilityComponent },
-      { path: 'notifications', component: NotificationModalComponent }
+      { path: 'notifications', component: DoctorNotifications }
     ]
   },
   {
@@ -77,10 +82,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard, PatientGuard],
     children: [
       { path: 'profile', component: PatientProfileComponent },
+      { path: 'doctor-search', component: DoctorSearchComponent },
+      { path: 'doctor-profile/:id', component: DoctorProfile },
       { path: 'book-appointment', component: BookAppointmentComponent },
+      { path: 'reschedule-appointment/:id', component: RescheduleAppointment },
       { path: 'appointments', component: PatientAppointmentsComponent },
+      { path: 'payment-history', component: PaymentHistory },
       { path: 'nearby-clinics', component: NearbyClinicsComponent },
-      { path: 'notifications', component: NotificationModalComponent }
+      { path: 'notifications', component: Notifications }
     ]
   },
   { path: '**', component: NotFoundComponent }

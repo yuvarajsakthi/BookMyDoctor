@@ -30,6 +30,19 @@ namespace BookMyDoctor.Server.Controllers
             return Ok(notifications);
         }
 
+        [HttpGet("doctor")]
+        public async Task<IActionResult> GetDoctorNotifications()
+        {
+            var notifications = new object[] { };
+            return Ok(notifications);
+        }
+
+        [HttpPut("{id}/read")]
+        public async Task<IActionResult> MarkAsRead(int id)
+        {
+            return Ok();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNotification(int id)
         {

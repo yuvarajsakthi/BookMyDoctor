@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -12,13 +12,12 @@ import { DoctorService } from '../../../core/services/doctor.service';
   selector: 'app-doctor-profile',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatSelectModule
-  ],
+],
   template: `
     <div class="profile-container">
       <div class="profile-header">
@@ -45,7 +44,7 @@ import { DoctorService } from '../../../core/services/doctor.service';
           </div>
         </div>
       </div>
-
+    
       <div class="profile-content">
         <div class="profile-card">
           <div class="card-header">
@@ -57,30 +56,30 @@ import { DoctorService } from '../../../core/services/doctor.service';
               {{ isEditing ? 'Cancel' : 'Edit' }}
             </button>
           </div>
-
+    
           <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
             <div class="form-grid">
               <div class="form-group">
                 <label>Full Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   formControlName="userName">
               </div>
-
+    
               <div class="form-group">
                 <label>Email</label>
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   formControlName="email">
               </div>
-
+    
               <div class="form-group">
                 <label>Phone</label>
-                <input 
-                  type="tel" 
+                <input
+                  type="tel"
                   formControlName="phone">
               </div>
-
+    
               <div class="form-group">
                 <label>Gender</label>
                 <select formControlName="gender">
@@ -89,51 +88,55 @@ import { DoctorService } from '../../../core/services/doctor.service';
                   <option value="Other">Other</option>
                 </select>
               </div>
-
+    
               <div class="form-group">
                 <label>Specialty</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   formControlName="specialty">
               </div>
-
+    
               <div class="form-group">
                 <label>Experience (Years)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   formControlName="experienceYears">
               </div>
-
+    
               <div class="form-group">
                 <label>Consultation Fee (₹)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   formControlName="consultationFee">
               </div>
             </div>
-
+    
             <div class="form-group full-width">
               <label>Bio</label>
-              <textarea 
-                formControlName="bio" 
-                rows="4" 
-                placeholder="Tell patients about yourself..."></textarea>
+              <textarea
+                formControlName="bio"
+                rows="4"
+              placeholder="Tell patients about yourself..."></textarea>
             </div>
-
-            <div class="form-actions" *ngIf="isEditing">
-              <button type="button" class="btn-secondary" (click)="cancelEdit()">
-                Cancel
-              </button>
-              <button type="submit" class="btn-primary" [disabled]="!profileForm.valid || isLoading">
-                <span *ngIf="isLoading" class="spinner"></span>
-                {{ isLoading ? 'Saving...' : 'Save Changes' }}
-              </button>
-            </div>
+    
+            @if (isEditing) {
+              <div class="form-actions">
+                <button type="button" class="btn-secondary" (click)="cancelEdit()">
+                  Cancel
+                </button>
+                <button type="submit" class="btn-primary" [disabled]="!profileForm.valid || isLoading">
+                  @if (isLoading) {
+                    <span class="spinner"></span>
+                  }
+                  {{ isLoading ? 'Saving...' : 'Save Changes' }}
+                </button>
+              </div>
+            }
           </form>
         </div>
       </div>
     </div>
-  `,
+    `,
   styles: [`
     .profile-container {
       max-width: 1000px;

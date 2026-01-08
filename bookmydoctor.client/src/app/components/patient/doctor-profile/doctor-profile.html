@@ -1,0 +1,164 @@
+<div class="doctor-profile-container">
+  <!-- Loading Spinner -->
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Loading doctor profile...</p>
+    </div>
+  }
+
+  <!-- Doctor Profile -->
+  @if (!isLoading && doctor) {
+    <div class="profile-content">
+      <!-- Header Section -->
+      <mat-card class="profile-header">
+        <div class="header-content">
+          <div class="doctor-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="doctor-basic-info">
+            <h1>Dr. {{doctor.userName}}</h1>
+            <h2>{{doctor.specialty}}</h2>
+            <div class="status-chips">
+              <mat-chip-set>
+                @if (doctor.isApproved) {
+                  <mat-chip color="primary" selected>
+                    <mat-icon>verified</mat-icon>
+                    Verified
+                  </mat-chip>
+                }
+                @if (doctor.isActive) {
+                  <mat-chip color="accent" selected>
+                    <mat-icon>check_circle</mat-icon>
+                    Available
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="bookAppointment()">
+              <mat-icon>event</mat-icon>
+              Book Appointment
+            </button>
+            <button mat-button (click)="goBack()">
+              <mat-icon>arrow_back</mat-icon>
+              Back to Search
+            </button>
+          </div>
+        </div>
+      </mat-card>
+      <!-- Details Section -->
+      <div class="profile-details">
+        <!-- Contact Information -->
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>contact_phone</mat-icon>
+              Contact Information
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon>email</mat-icon>
+                <div>
+                  <label>Email</label>
+                  <span>{{doctor.email}}</span>
+                </div>
+              </div>
+              @if (doctor.phone) {
+                <div class="info-item">
+                  <mat-icon>phone</mat-icon>
+                  <div>
+                    <label>Phone</label>
+                    <span>{{doctor.phone}}</span>
+                  </div>
+                </div>
+              }
+              <div class="info-item">
+                <mat-icon>person</mat-icon>
+                <div>
+                  <label>Gender</label>
+                  <span>{{getGenderText(doctor.gender)}}</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <!-- Professional Information -->
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>work</mat-icon>
+              Professional Details
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon>medical_services</mat-icon>
+                <div>
+                  <label>Specialty</label>
+                  <span>{{doctor.specialty}}</span>
+                </div>
+              </div>
+              @if (doctor.experienceYears) {
+                <div class="info-item">
+                  <mat-icon>timeline</mat-icon>
+                  <div>
+                    <label>Experience</label>
+                    <span>{{doctor.experienceYears}} years</span>
+                  </div>
+                </div>
+              }
+              @if (doctor.consultationFee) {
+                <div class="info-item">
+                  <mat-icon>attach_money</mat-icon>
+                  <div>
+                    <label>Consultation Fee</label>
+                    <span>₹{{doctor.consultationFee}}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <!-- Availability -->
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>schedule</mat-icon>
+              Availability
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="availability-info">
+              <div class="info-item">
+                <mat-icon>access_time</mat-icon>
+                <div>
+                  <label>Working Hours</label>
+                  <span>{{getAvailabilityText()}}</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        <!-- Biography -->
+        @if (doctor.bio) {
+          <mat-card class="info-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>description</mat-icon>
+                About Doctor
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p class="bio-text">{{doctor.bio}}</p>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -81,4 +81,8 @@ export class AppointmentService {
     return this.http.get<ApiResponse<AppointmentResponseDto[]>>(`${this.apiUrl}/history`)
       .pipe(map(response => response.data || []));
   }
+
+  blockTimeSlot(blockData: any): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/block-slot`, blockData);
+  }
 }

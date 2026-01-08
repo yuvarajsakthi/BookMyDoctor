@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from '../../../shared/material.module';
@@ -10,9 +10,8 @@ import { BloodGroupUtil } from '../../../core/utils/blood-group.util';
 @Component({
   selector: 'app-user-management',
   imports: [
-    CommonModule,
     MaterialModule
-  ],
+],
   templateUrl: './user-management.html',
   styleUrl: './user-management.scss',
 })

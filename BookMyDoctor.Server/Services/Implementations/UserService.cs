@@ -44,13 +44,24 @@ namespace BookMyDoctor.Server.Services.Implementations
             return _mapper.Map<UserResponseDto>(patient);
         }
 
-        public async Task<IEnumerable<UserResponseDto>> SearchDoctorsAsync(string? specialty, string? location)
+        public async Task<IEnumerable<UserResponseDto>> SearchDoctorsAsync(string? specialty, string? location, DateTime? date)
         {
-            var doctors = await _unitOfWork.Users.FindAsync(u => u.UserRole == UserRole.Doctor && u.IsApproved);
+            var doctors = await _unitOfWork.Users.FindAsync(u => u.UserRole == UserRole.Doctor && u.IsApproved && u.IsActive);
             
             if (!string.IsNullOrEmpty(specialty))
                 doctors = doctors.Where(d => d.Specialty?.Contains(specialty, StringComparison.OrdinalIgnoreCase) == true);
 
+            // For location filtering, we'd need to join with clinic data
+            // For now, we'll skip location filtering as it requires clinic relationship
+            
+            return _mapper.Map<IEnumerable<UserResponseDto>>(doctors);
+        }
+
+        public async Task<IEnumerable<UserResponseDto>> GetDoctorsByClinicAsync(int clinicId)
+        {
+            // For now, return all approved doctors since clinic-doctor relationship isn't defined
+            // In a real scenario, you'd have a DoctorClinic junction table
+            var doctors = await _unitOfWork.Users.FindAsync(u => u.UserRole == UserRole.Doctor && u.IsApproved);
             return _mapper.Map<IEnumerable<UserResponseDto>>(doctors);
         }
 

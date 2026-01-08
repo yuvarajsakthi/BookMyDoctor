@@ -47,9 +47,9 @@ namespace BookMyDoctor.Server.Controllers
         }
 
         [HttpGet("doctors/search")]
-        public async Task<IActionResult> SearchDoctors([FromQuery] string? specialty, [FromQuery] string? location)
+        public async Task<IActionResult> SearchDoctors([FromQuery] string? specialty, [FromQuery] string? location, [FromQuery] DateTime? date)
         {
-            var doctors = await _userService.SearchDoctorsAsync(specialty, location);
+            var doctors = await _userService.SearchDoctorsAsync(specialty, location, date);
             return Ok(new ApiResponse<IEnumerable<UserResponseDto>> { Success = true, Data = doctors });
         }
 

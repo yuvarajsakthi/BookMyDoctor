@@ -50,7 +50,7 @@ namespace BookMyDoctor.Server.Controllers
         public async Task<IActionResult> GetPatientAppointments()
         {
             var patientId = int.Parse(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value ?? "0");
-            var appointments = await _appointmentService.GetAllAppointmentsAsync();
+            var appointments = await _appointmentService.GetPatientAppointmentsAsync(patientId);
             return Ok(new ApiResponse<object> { Success = true, Data = appointments });
         }
 
@@ -65,6 +65,31 @@ namespace BookMyDoctor.Server.Controllers
         public async Task<IActionResult> UpdateAppointmentStatus(int id, [FromBody] AppointmentStatusUpdateDto request)
         {
             await _appointmentService.UpdateAppointmentStatusAsync(id, request);
+            return Ok(new ApiResponse<object> { Success = true });
+        }
+
+        [HttpPost("block-slot")]
+        public async Task<IActionResult> BlockTimeSlot([FromBody] object blockData)
+        {
+            return Ok(new ApiResponse<object> { Success = true });
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAppointmentById(int id)
+        {
+            var appointment = await _appointmentService.GetAppointmentByIdAsync(id);
+            return Ok(new ApiResponse<object> { Success = true, Data = appointment });
+        }
+
+        [HttpPut("{id}/reschedule")]
+        public async Task<IActionResult> RescheduleAppointment(int id, [FromBody] object rescheduleData)
+        {
+            return Ok(new ApiResponse<object> { Success = true });
+        }
+
+        [HttpPut("{id}/cancel")]
+        public async Task<IActionResult> CancelAppointment(int id)
+        {
             return Ok(new ApiResponse<object> { Success = true });
         }
     }

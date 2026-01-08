@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,13 +15,12 @@ import { environment } from '../../../../environments/environment';
   selector: 'app-appointment-management',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatChipsModule
-  ],
+],
   templateUrl: './appointment-management.html',
   styleUrl: './appointment-management.scss'
 })
@@ -41,8 +40,6 @@ export class AppointmentManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadAppointments();
-    this.loadAvailability();
-    this.loadPayments();
   }
 
   loadAppointments() {
@@ -147,6 +144,9 @@ export class AppointmentManagementComponent implements OnInit {
 
   openAvailabilityModal() {
     this.showAvailabilityModal = true;
+    if (this.availability.length === 0) {
+      this.loadAvailability();
+    }
   }
 
   closeAvailabilityModal() {
@@ -155,6 +155,9 @@ export class AppointmentManagementComponent implements OnInit {
 
   openPaymentsModal() {
     this.showPaymentsModal = true;
+    if (this.payments.length === 0) {
+      this.loadPayments();
+    }
   }
 
   closePaymentsModal() {

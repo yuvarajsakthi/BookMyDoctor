@@ -93,9 +93,145 @@
   color: white;
 }
 
-.stat-card.revenue .stat-icon {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+.stat-card.cancelled .stat-icon {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
   color: white;
+}
+
+.analytics-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.chart-container {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container h3 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.status-summary {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+}
+
+.status-item {
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px;
+  flex: 1;
+}
+
+.status-item.completed {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.status-item.pending {
+  background: linear-gradient(135deg, #FF9800, #f57c00);
+  color: white;
+}
+
+.status-item.cancelled {
+  background: linear-gradient(135deg, #F44336, #d32f2f);
+  color: white;
+}
+
+.status-item .count {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.status-item .label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.weekly-stats {
+  padding: 20px 0;
+}
+
+.week-summary {
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.metric {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  flex: 1;
+}
+
+.metric .value {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 4px;
+}
+
+.metric .label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.monthly-stats {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+.monthly-stats h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.monthly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.monthly-stat {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.monthly-stat h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.8rem;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.monthly-stat p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 .stat-content h3 {

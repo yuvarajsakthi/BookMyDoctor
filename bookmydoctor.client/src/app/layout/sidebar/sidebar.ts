@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy, HostListener, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })

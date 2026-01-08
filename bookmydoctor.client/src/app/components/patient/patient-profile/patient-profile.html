@@ -87,13 +87,17 @@
           </div>
         </div>
 
-        <div class="form-actions" *ngIf="isEditing">
-          <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
-          <button type="submit" class="btn-primary" [disabled]="!profileForm.valid || isLoading">
-            <span *ngIf="isLoading" class="spinner"></span>
-            {{ isLoading ? 'Saving...' : 'Save Changes' }}
-          </button>
-        </div>
+        @if (isEditing) {
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+            <button type="submit" class="btn-primary" [disabled]="!profileForm.valid || isLoading">
+              @if (isLoading) {
+                <span class="spinner"></span>
+              }
+              {{ isLoading ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        }
       </form>
     </div>
   </div>

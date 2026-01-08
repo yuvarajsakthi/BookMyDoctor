@@ -1,0 +1,227 @@
+<div class="availability-container">
+  <div class="page-header">
+    <h1>Availability Management</h1>
+    <p>Set your working hours, breaks, and days off for each clinic</p>
+  </div>
+
+  <mat-tab-group>
+    <mat-tab label="Working Hours">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Set Working Hours</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="availabilityForm" (ngSubmit)="addAvailability()">
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Clinic</mat-label>
+                  <mat-select formControlName="clinicId">
+                    @for (clinic of clinics; track clinic) {
+                      <mat-option [value]="clinic.clinicId">
+                        {{clinic.clinicName}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Day of Week</mat-label>
+                  <mat-select formControlName="dayOfWeek">
+                    @for (day of weekDays; track day; let i = $index) {
+                      <mat-option [value]="i">
+                        {{day}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Start Time</mat-label>
+                  <input matInput type="time" formControlName="startTime">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>End Time</mat-label>
+                  <input matInput type="time" formControlName="endTime">
+                </mat-form-field>
+
+                <button mat-raised-button color="primary" type="submit" [disabled]="!availabilityForm.valid">
+                  <mat-icon>add</mat-icon>
+                  Add Slot
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="schedule-grid">
+          @for (day of weekDays; track day; let i = $index) {
+            <mat-card class="day-card">
+              <mat-card-header>
+                <mat-card-title>{{day}}</mat-card-title>
+                <mat-card-subtitle>{{getDaySlots(i).length}} slots</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                @for (slot of getDaySlots(i); track slot) {
+                  <div class="time-slot">
+                    <div class="slot-info">
+                      <span class="clinic-name">{{getClinicName(slot.clinicId)}}</span>
+                      <span class="time-range">{{slot.startTime}} - {{slot.endTime}}</span>
+                    </div>
+                    <button mat-icon-button color="warn" (click)="removeAvailability(slot.id)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                }
+                @if (getDaySlots(i).length === 0) {
+                  <div class="no-slots">
+                    <mat-icon>schedule</mat-icon>
+                    <span>No availability set</span>
+                  </div>
+                }
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Breaks">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Add Break Time</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="breakForm" (ngSubmit)="addBreak()">
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Clinic</mat-label>
+                  <mat-select formControlName="clinicId">
+                    @for (clinic of clinics; track clinic) {
+                      <mat-option [value]="clinic.clinicId">
+                        {{clinic.clinicName}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Day of Week</mat-label>
+                  <mat-select formControlName="dayOfWeek">
+                    @for (day of weekDays; track day; let i = $index) {
+                      <mat-option [value]="i">
+                        {{day}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Break Start</mat-label>
+                  <input matInput type="time" formControlName="startTime">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Break End</mat-label>
+                  <input matInput type="time" formControlName="endTime">
+                </mat-form-field>
+
+                <button mat-raised-button color="accent" type="submit" [disabled]="!breakForm.valid">
+                  <mat-icon>pause</mat-icon>
+                  Add Break
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Current Breaks</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @for (breakTime of breaks; track breakTime) {
+              <div class="break-item">
+                <div class="break-info">
+                  <span class="clinic-name">{{getClinicName(breakTime.clinicId)}}</span>
+                  <span class="day-name">{{weekDays[breakTime.dayOfWeek]}}</span>
+                  <span class="time-range">{{breakTime.startTime}} - {{breakTime.endTime}}</span>
+                </div>
+                <button mat-icon-button color="warn" (click)="removeBreak(breakTime.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+            @if (breaks.length === 0) {
+              <div class="no-breaks">
+                <mat-icon>free_breakfast</mat-icon>
+                <span>No breaks scheduled</span>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Days Off">
+      <div class="tab-content">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Schedule Day Off</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="dayOffForm" (ngSubmit)="addDayOff()">
+              <div class="form-row">
+                <mat-form-field appearance="outline">
+                  <mat-label>Date</mat-label>
+                  <input matInput [matDatepicker]="picker" formControlName="date">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Reason (Optional)</mat-label>
+                  <input matInput formControlName="reason">
+                </mat-form-field>
+
+                <button mat-raised-button color="warn" type="submit" [disabled]="!dayOffForm.valid">
+                  <mat-icon>event_busy</mat-icon>
+                  Add Day Off
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Scheduled Days Off</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @for (dayOff of daysOff; track dayOff) {
+              <div class="day-off-item">
+                <div class="day-off-info">
+                  <span class="date">{{dayOff.date | date:'fullDate'}}</span>
+                  @if (dayOff.reason) {
+                    <span class="reason">{{dayOff.reason}}</span>
+                  }
+                </div>
+                <button mat-icon-button color="warn" (click)="removeDayOff(dayOff.id)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+            @if (daysOff.length === 0) {
+              <div class="no-days-off">
+                <mat-icon>event_available</mat-icon>
+                <span>No days off scheduled</span>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

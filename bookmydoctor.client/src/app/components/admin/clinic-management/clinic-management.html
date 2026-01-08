@@ -24,41 +24,43 @@
   </div>
 
   <div class="content-wrapper">
-    <div class="stats-cards" *ngIf="!isLoading">
-      <div class="stat-card">
-        <div class="stat-icon total">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
+    @if (!isLoading) {
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-icon total">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>{{ getClinicStats().total }}</h3>
+            <p>Total Clinics</p>
+          </div>
         </div>
-        <div class="stat-content">
-          <h3>{{ getClinicStats().total }}</h3>
-          <p>Total Clinics</p>
+        <div class="stat-card">
+          <div class="stat-icon active">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>{{ getClinicStats().active }}</h3>
+            <p>Active</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon inactive">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <h3>{{ getClinicStats().inactive }}</h3>
+            <p>Inactive</p>
+          </div>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon active">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <h3>{{ getClinicStats().active }}</h3>
-          <p>Active</p>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon inactive">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <h3>{{ getClinicStats().inactive }}</h3>
-          <p>Inactive</p>
-        </div>
-      </div>
-    </div>
+    }
 
     <div class="table-section">
       <div class="table-header">
@@ -77,87 +79,99 @@
         </div>
       </div>
 
-      <div class="users-table" *ngIf="!isLoading && dataSource.data.length > 0">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Clinic Name</th>
-              <th>Address</th>
-              <th>City</th>
-              <th>State</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let clinic of dataSource.data" class="table-row">
-              <td>
-                <div class="clinic-info">
-                  <div class="clinic-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  </div>
-                  <div class="clinic-details">
-                    <span class="clinic-name">{{ clinic.clinicName }}</span>
-                  </div>
-                </div>
-              </td>
-              <td class="address-cell">{{ clinic.address || 'N/A' }}</td>
-              <td class="city-cell">{{ clinic.city || 'N/A' }}</td>
-              <td class="state-cell">{{ clinic.state || 'N/A' }}</td>
-              <td>
-                <span class="status-badge" [class]="clinic.isActive ? 'active' : 'inactive'">
-                  {{ clinic.isActive ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn-action edit" title="Edit Clinic" (click)="editClinic(clinic)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                    </svg>
-                  </button>
-                  <button class="btn-action" [class]="clinic.isActive ? 'deactivate' : 'activate'" 
-                          [title]="clinic.isActive ? 'Deactivate' : 'Activate'" 
-                          (click)="toggleClinicStatus(clinic)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path *ngIf="clinic.isActive" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z"/>
-                      <path *ngIf="!clinic.isActive" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                  </button>
-                  <button class="btn-action delete" title="Delete Clinic" (click)="deleteClinic(clinic)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      @if (!isLoading && dataSource.data.length > 0) {
+        <div class="users-table">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Clinic Name</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (clinic of dataSource.data; track clinic) {
+                <tr class="table-row">
+                  <td>
+                    <div class="clinic-info">
+                      <div class="clinic-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                      </div>
+                      <div class="clinic-details">
+                        <span class="clinic-name">{{ clinic.clinicName }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="address-cell">{{ clinic.address || 'N/A' }}</td>
+                  <td class="city-cell">{{ clinic.city || 'N/A' }}</td>
+                  <td class="state-cell">{{ clinic.state || 'N/A' }}</td>
+                  <td>
+                    <span class="status-badge" [class]="clinic.isActive ? 'active' : 'inactive'">
+                      {{ clinic.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn-action edit" title="Edit Clinic" (click)="editClinic(clinic)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                      </button>
+                      <button class="btn-action" [class]="clinic.isActive ? 'deactivate' : 'activate'"
+                        [title]="clinic.isActive ? 'Deactivate' : 'Activate'"
+                        (click)="toggleClinicStatus(clinic)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          @if (clinic.isActive) {
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z"/>
+                          }
+                          @if (!clinic.isActive) {
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                          }
+                        </svg>
+                      </button>
+                      <button class="btn-action delete" title="Delete Clinic" (click)="deleteClinic(clinic)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
 
-    <div class="loading-container" *ngIf="isLoading">
-      <div class="loading-spinner"></div>
-      <p>Loading clinics...</p>
-    </div>
-
-    <div class="empty-state" *ngIf="!isLoading && dataSource.data.length === 0">
-      <div class="empty-icon">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-        </svg>
+    @if (isLoading) {
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading clinics...</p>
       </div>
-      <h3>No clinics found</h3>
-      <p>There are no clinics registered in the system yet.</p>
-      <button class="btn btn-primary" (click)="createClinic()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-        Add First Clinic
-      </button>
-    </div>
+    }
+
+    @if (!isLoading && dataSource.data.length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <h3>No clinics found</h3>
+        <p>There are no clinics registered in the system yet.</p>
+        <button class="btn btn-primary" (click)="createClinic()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Add First Clinic
+        </button>
+      </div>
+    }
   </div>
 </div>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,7 +16,6 @@ import { AppointmentResponseDto } from '../../../core/models/admin.models';
   selector: 'app-doctor-appointments',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -24,7 +23,7 @@ import { AppointmentResponseDto } from '../../../core/models/admin.models';
     MatChipsModule,
     MatSelectModule,
     MatFormFieldModule
-  ],
+],
   templateUrl: './doctor-appointments.html',
   styleUrl: './doctor-appointments.scss'
 })
@@ -70,6 +69,39 @@ export class DoctorAppointmentsComponent implements OnInit {
     });
   }
 
+  acceptAppointment(appointmentId: number) {
+    this.updateStatus(appointmentId, 1); // Booked status
+  }
+
+  declineAppointment(appointmentId: number) {
+    if (confirm('Are you sure you want to decline this appointment?')) {
+      this.updateStatus(appointmentId, 3); // Cancelled status
+    }
+  }
+
+  completeAppointment(appointmentId: number) {
+    this.updateStatus(appointmentId, 2); // Completed status
+  }
+
+  blockSlot(date: string, startTime: string, endTime: string) {
+    const blockData = {
+      date: date,
+      startTime: startTime,
+      endTime: endTime,
+      reason: 'Manually blocked by doctor'
+    };
+    
+    this.appointmentService.blockTimeSlot(blockData).subscribe({
+      next: () => {
+        this.toastr.success('Time slot blocked');
+        this.loadAppointments();
+      },
+      error: () => {
+        this.toastr.error('Failed to block time slot');
+      }
+    });
+  }
+
   getStatusColor(status: string | number): string {
     const statusStr = typeof status === 'string' ? status.toLowerCase() : this.getStatusText(status).toLowerCase();
     switch (statusStr) {
@@ -86,8 +118,9 @@ export class DoctorAppointmentsComponent implements OnInit {
     switch (status) {
       case 0: return 'Pending';
       case 1: return 'Booked';
-      case 2: return 'Cancelled';
-      case 3: return 'Completed';
+      case 2: return 'Completed';
+      case 3: return 'Cancelled';
+      case 4: return 'PaymentDone';
       default: return 'Unknown';
     }
   }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { PatientService } from '../../../core/services/patient.service';
@@ -7,7 +7,7 @@ import { PatientService } from '../../../core/services/patient.service';
 @Component({
   selector: 'app-patient-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './patient-profile.html',
   styleUrls: ['./patient-profile.scss']
 })

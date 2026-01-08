@@ -12,8 +12,16 @@ export class NotificationService {
 
   constructor(private http: HttpClient) {}
 
-  getNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(this.apiUrl);
+  getNotifications(): Observable<any> {
+    return this.http.get<any>(this.apiUrl);
+  }
+
+  getDoctorNotifications(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/doctor`);
+  }
+
+  markAsRead(notificationId: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${notificationId}/read`, {});
   }
 
   deleteNotification(notificationId: number): Observable<void> {

@@ -164,5 +164,19 @@ namespace BookMyDoctor.Server.Controllers
                 });
             }
         }
+
+        [HttpGet("history")]
+        public async Task<IActionResult> GetPaymentHistory()
+        {
+            var payments = new object[] { };
+            return Ok(new ApiResponse<object> { Success = true, Data = payments });
+        }
+
+        [HttpGet("invoice/{paymentId}")]
+        public async Task<IActionResult> DownloadInvoice(int paymentId)
+        {
+            var pdfBytes = new byte[] { }; // Mock PDF data
+            return File(pdfBytes, "application/pdf", $"invoice-{paymentId}.pdf");
+        }
     }
 }

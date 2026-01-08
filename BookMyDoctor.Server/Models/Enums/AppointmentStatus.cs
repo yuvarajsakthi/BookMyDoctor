@@ -6,6 +6,6 @@ namespace BookMyDoctor.Server.Models.Enums
         Booked,
         Completed,
         Cancelled,
-        Blocked
+        PaymentDone
     }
 }

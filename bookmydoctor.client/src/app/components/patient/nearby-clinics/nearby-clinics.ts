@@ -1,32 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { PatientService } from '../../../core/services/patient.service';
 
 @Component({
   selector: 'app-nearby-clinics',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule
-  ],
+  imports: [],
   templateUrl: './nearby-clinics.html',
   styleUrl: './nearby-clinics.scss'
 })
 export class NearbyClinicsComponent implements OnInit {
   clinics: any[] = [];
   isLoading = false;
+  userLocation: { lat: number, lng: number } | null = null;
+  selectedClinic: any = null;
+  showModal = false;
 
   constructor(
     private patientService: PatientService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -45,5 +40,101 @@ export class NearbyClinicsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  findNearby() {
+    if (!navigator.geolocation) {
+      this.toastr.error('Geolocation is not supported by this browser');
+      return;
+    }
+
+    this.isLoading = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        this.calculateDistances();
+      },
+      () => {
+        this.toastr.error('Unable to get your location');
+        this.isLoading = false;
+      }
+    );
+  }
+
+  private calculateDistances() {
+    if (!this.userLocation) return;
+
+    this.clinics = this.clinics.map(clinic => {
+      const distance = this.getDistance(
+        this.userLocation!.lat,
+        this.userLocation!.lng,
+        clinic.latitude || 0,
+        clinic.longitude || 0
+      );
+      return { ...clinic, distance: distance.toFixed(1) };
+    })
+    .filter(clinic => parseFloat(clinic.distance) <= 10) // Only show clinics within 10km
+    .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+
+    this.isLoading = false;
+    if (this.clinics.length === 0) {
+      this.toastr.info('No clinics found within 10km of your location');
+    } else {
+      this.toastr.success(`Found ${this.clinics.length} nearby clinics`);
+    }
+  }
+
+  private getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371; // Earth's radius in km
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLng = this.deg2rad(lng2 - lng1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  private deg2rad(deg: number): number {
+    return deg * (Math.PI/180);
+  }
+
+  viewDetails(clinic: any) {
+    this.selectedClinic = clinic;
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedClinic = null;
+  }
+
+  bookAppointment(clinic: any) {
+    this.router.navigate(['/patient/book-appointment'], { 
+      queryParams: { clinicId: clinic.clinicId || clinic.id } 
+    });
+  }
+
+  formatWorkingHours(clinic: any): string {
+    if (!clinic) return 'Hours not available';
+    
+    const openTime = this.formatTime(clinic.openTime);
+    const closeTime = this.formatTime(clinic.closeTime);
+    const workingDays = clinic.workingDays || 'Mon-Fri';
+    
+    return `${workingDays}: ${openTime} - ${closeTime}`;
+  }
+
+  private formatTime(timeString: string): string {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
   }
 }

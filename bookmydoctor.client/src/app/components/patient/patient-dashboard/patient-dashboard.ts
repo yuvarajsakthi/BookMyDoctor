@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { PatientService } from '../../../core/services/patient.service';
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './patient-dashboard.html',
   styleUrl: './patient-dashboard.scss'
 })
@@ -43,6 +43,10 @@ export class PatientDashboardComponent implements OnInit {
     });
   }
 
+  searchDoctors() {
+    this.router.navigate(['/patient/doctor-search']);
+  }
+
   findClinics() {
     this.router.navigate(['/patient/nearby-clinics']);
   }
@@ -51,8 +55,20 @@ export class PatientDashboardComponent implements OnInit {
     this.router.navigate(['/patient/book-appointment']);
   }
 
-  logout() {
-    sessionStorage.removeItem('token');
-    this.router.navigate(['/auth/login']);
+  viewAppointments() {
+    this.router.navigate(['/patient/appointments']);
+  }
+
+  viewProfile() {
+    this.router.navigate(['/patient/profile']);
+  }
+
+  getUserName(): string {
+    const user = sessionStorage.getItem('user');
+    if (user) {
+      const userData = JSON.parse(user);
+      return userData.userName || 'Patient';
+    }
+    return 'Patient';
   }
 }

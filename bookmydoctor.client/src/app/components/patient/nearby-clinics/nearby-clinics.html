@@ -1,31 +1,155 @@
-<div class="nearby-clinics">
-  <h2>Nearby Clinics</h2>
-  
-  <button mat-raised-button color="primary" (click)="loadClinics()" [disabled]="isLoading">
-    <mat-icon>location_on</mat-icon>
-    Find Nearby Clinics
-  </button>
-
-  <div *ngIf="isLoading" class="loading">
-    <mat-spinner></mat-spinner>
+<div class="nearby-clinics-container">
+  <div class="page-header">
+    <h1>Find Healthcare Clinics</h1>
+    <p>Discover quality healthcare facilities near you</p>
   </div>
 
-  <div class="clinics-grid" *ngIf="!isLoading && clinics.length > 0">
-    <mat-card *ngFor="let clinic of clinics" class="clinic-card">
-      <mat-card-header>
-        <mat-card-title>{{clinic.name}}</mat-card-title>
-        <mat-card-subtitle>{{clinic.distance}} km away</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <p>{{clinic.address}}</p>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-button color="primary">Book Appointment</button>
-      </mat-card-actions>
-    </mat-card>
+  <div class="search-controls">
+    <button class="btn-primary" (click)="findNearby()" [disabled]="isLoading">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+      </svg>
+      Find Nearby Clinics
+    </button>
+
+    <button class="btn-secondary" (click)="loadClinics()" [disabled]="isLoading">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+      </svg>
+      Show All Clinics
+    </button>
   </div>
 
-  <div *ngIf="!isLoading && clinics.length === 0" class="no-results">
-    <p>No nearby clinics found</p>
-  </div>
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading clinics...</p>
+    </div>
+  }
+
+  @if (!isLoading && clinics.length > 0) {
+    <div class="clinics-grid">
+      @for (clinic of clinics; track clinic) {
+        <div class="clinic-card">
+          <div class="clinic-header">
+            <div class="clinic-info">
+              <h3>{{ clinic.clinicName || clinic.name }}</h3>
+              <div class="clinic-meta">
+                @if (clinic.distance) {
+                  <span class="distance">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                    </svg>
+                    {{ clinic.distance }} km away
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+          <div class="clinic-content">
+            <div class="clinic-address">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+              <span>{{ clinic.address }}, {{ clinic.city }}, {{ clinic.state }} {{ clinic.zipCode }}</span>
+            </div>
+            <p class="clinic-description">{{ clinic.city }}, {{ clinic.state }} - {{ clinic.country }}</p>
+          </div>
+          <div class="clinic-actions">
+            <button class="btn-outline" (click)="viewDetails(clinic)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+              </svg>
+              View Details
+            </button>
+            <button class="btn-primary" (click)="bookAppointment(clinic)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+              </svg>
+              Book Appointment
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!isLoading && clinics.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </div>
+      <h3>No clinics found</h3>
+      <p>Try adjusting your search or check back later</p>
+    </div>
+  }
+
+  <!-- Clinic Details Modal -->
+  @if (showModal) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="clinic-title">
+            <div class="clinic-icon-small">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <h2>{{ selectedClinic?.name }}</h2>
+          </div>
+          <button class="close-btn" (click)="closeModal()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-section">
+            <h3>Location</h3>
+            <div class="detail-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+              <span>{{ selectedClinic?.address }}</span>
+            </div>
+            @if (selectedClinic?.distance) {
+              <div class="detail-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
+                </svg>
+                <span>{{ selectedClinic?.distance }} km away</span>
+              </div>
+            }
+          </div>
+          <div class="detail-section">
+            <h3>Contact & Hours</h3>
+            <div class="detail-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+              </svg>
+              <span>{{ selectedClinic?.phone || 'Contact information not available' }}</span>
+            </div>
+            <div class="detail-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+              </svg>
+              <span>{{ formatWorkingHours(selectedClinic) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" (click)="closeModal()">Close</button>
+          <button class="btn-primary" (click)="bookAppointment(selectedClinic); closeModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+            </svg>
+            Book Appointment
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -9,7 +9,8 @@ namespace BookMyDoctor.Server.Services.Interfaces
         Task<IEnumerable<UserResponseDto>> GetPatientsAsync();
         Task<UserResponseDto> GetDoctorByIdAsync(int id);
         Task<UserResponseDto> GetPatientByIdAsync(int id);
-        Task<IEnumerable<UserResponseDto>> SearchDoctorsAsync(string? specialty, string? location);
+        Task<IEnumerable<UserResponseDto>> SearchDoctorsAsync(string? specialty, string? location, DateTime? date);
+        Task<IEnumerable<UserResponseDto>> GetDoctorsByClinicAsync(int clinicId);
         Task<DashboardSummaryDto> GetDashboardSummaryAsync();
         Task<IEnumerable<AppointmentResponseDto>> GetAllAppointmentsAsync();
         Task<UserResponseDto> GetDoctorProfileAsync(int doctorId);

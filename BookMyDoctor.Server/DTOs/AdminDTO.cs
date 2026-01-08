@@ -118,19 +118,22 @@ namespace BookMyDoctor.Server.DTOs
 
     public class AvailabilityDto
     {
-        public DayOfWeek DayOfWeek { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        [Required]
+        public int DayOfWeek { get; set; }
+        [Required]
+        public string StartTime { get; set; } = string.Empty;
+        [Required]
+        public string EndTime { get; set; } = string.Empty;
     }
 
     public class AvailabilityResponseDto
     {
-        public int AvailabilityId { get; set; }
-        public DayOfWeek DayOfWeek { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public int Id { get; set; }
+        public int DayOfWeek { get; set; }
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
         public bool IsActive { get; set; }
-        public string? DoctorName { get; set; }
+        public string DoctorName { get; set; } = string.Empty;
     }
     
 }

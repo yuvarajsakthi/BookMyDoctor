@@ -1,0 +1,85 @@
+<div class="reschedule-container">
+  <div class="header">
+    <h1>Reschedule Appointment</h1>
+    <p>Select a new date and time for your appointment</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <mat-spinner></mat-spinner>
+      <p>Loading appointment details...</p>
+    </div>
+  }
+
+  @if (!isLoading && appointment) {
+    <div class="content">
+      <mat-card class="current-appointment">
+        <mat-card-header>
+          <mat-card-title>Current Appointment</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="appointment-info">
+            <div class="info-item">
+              <mat-icon>person</mat-icon>
+              <span>Dr. {{appointment.doctorName}}</span>
+            </div>
+            <div class="info-item">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{appointment.date | date:'fullDate'}}</span>
+            </div>
+            <div class="info-item">
+              <mat-icon>access_time</mat-icon>
+              <span>{{appointment.startTime}}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <form [formGroup]="rescheduleForm" (ngSubmit)="onSubmit()" class="reschedule-form">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Select New Date & Time</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-fields">
+              <mat-form-field appearance="outline">
+                <mat-label>New Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="date"
+                  [matDatepickerFilter]="dateFilter" [min]="minDate" required>
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                @if (availableTimeSlots.length > 0) {
+                  <mat-form-field appearance="outline">
+                    <mat-label>New Time</mat-label>
+                    <mat-select formControlName="startTime" required>
+                      @for (slot of availableTimeSlots; track slot) {
+                        <mat-option [value]="slot.value">
+                          {{slot.display}}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                }
+                @if (rescheduleForm.get('date')?.value && availableTimeSlots.length === 0) {
+                  <div class="no-slots">
+                    <mat-icon>info</mat-icon>
+                    <span>No available slots for selected date</span>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button type="button" (click)="goBack()">Cancel</button>
+              <button mat-raised-button color="primary" type="submit"
+                [disabled]="rescheduleForm.invalid || isSubmitting">
+                @if (isSubmitting) {
+                  <mat-spinner diameter="16"></mat-spinner>
+                }
+                {{isSubmitting ? 'Rescheduling...' : 'Reschedule Appointment'}}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </form>
+      </div>
+    }
+  </div>

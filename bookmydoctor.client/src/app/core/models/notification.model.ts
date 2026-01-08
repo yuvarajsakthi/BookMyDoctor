@@ -1,10 +1,8 @@
 export interface Notification {
-  id: number;
-  type: NotificationType;
-  title: string;
+  notificationId: number;
+  userId: number;
   message: string;
-  createdAt: Date;
-  isRead: boolean;
+  sentAt: string;
 }
 
 export type NotificationType = 'appointment' | 'reminder' | 'system';

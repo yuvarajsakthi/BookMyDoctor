@@ -1,0 +1,94 @@
+.reschedule-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+
+    h1 {
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #666;
+      font-size: 16px;
+    }
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+
+    mat-spinner {
+      margin-bottom: 16px;
+    }
+  }
+
+  .current-appointment {
+    margin-bottom: 24px;
+
+    .appointment-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        mat-icon {
+          color: #666;
+          font-size: 20px;
+        }
+
+        span {
+          font-size: 16px;
+          color: #333;
+        }
+      }
+    }
+  }
+
+  .reschedule-form {
+    .form-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      mat-form-field {
+        width: 100%;
+      }
+    }
+
+    .no-slots {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ff9800;
+      font-size: 14px;
+
+      mat-icon {
+        font-size: 18px;
+      }
+    }
+
+    mat-card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .reschedule-container {
+    padding: 16px;
+  }
+}

@@ -16,68 +16,70 @@
   </div>
 
   <div class="content-wrapper">
-    <div class="form-card" *ngIf="!isLoading">
-      <form [formGroup]="clinicForm" (ngSubmit)="onSubmit()" class="clinic-form">
-        <div class="form-section">
-          <h3 class="section-title">Basic Information</h3>
-          
-          <div class="form-group">
-            <label class="form-label">Clinic Name *</label>
-            <input type="text" class="form-input" formControlName="clinicName" placeholder="Enter clinic name">
-            <div class="error-message" *ngIf="clinicForm.get('clinicName')?.hasError('required') && clinicForm.get('clinicName')?.touched">
-              Clinic name is required
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Address</label>
-            <textarea class="form-textarea" formControlName="address" rows="3" placeholder="Enter clinic address"></textarea>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3 class="section-title">Location Details</h3>
-          
-          <div class="form-row">
+    @if (!isLoading) {
+      <div class="form-card">
+        <form [formGroup]="clinicForm" (ngSubmit)="onSubmit()" class="clinic-form">
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
             <div class="form-group">
-              <label class="form-label">City</label>
-              <input type="text" class="form-input" formControlName="city" placeholder="Enter city">
+              <label class="form-label">Clinic Name *</label>
+              <input type="text" class="form-input" formControlName="clinicName" placeholder="Enter clinic name">
+              @if (clinicForm.get('clinicName')?.hasError('required') && clinicForm.get('clinicName')?.touched) {
+                <div class="error-message">
+                  Clinic name is required
+                </div>
+              }
             </div>
             <div class="form-group">
-              <label class="form-label">State</label>
-              <input type="text" class="form-input" formControlName="state" placeholder="Enter state">
+              <label class="form-label">Address</label>
+              <textarea class="form-textarea" formControlName="address" rows="3" placeholder="Enter clinic address"></textarea>
             </div>
           </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Country</label>
-              <input type="text" class="form-input" formControlName="country" placeholder="Enter country">
+          <div class="form-section">
+            <h3 class="section-title">Location Details</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input type="text" class="form-input" formControlName="city" placeholder="Enter city">
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <input type="text" class="form-input" formControlName="state" placeholder="Enter state">
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Zip Code</label>
-              <input type="text" class="form-input" formControlName="zipCode" placeholder="Enter zip code">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-input" formControlName="country" placeholder="Enter country">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Zip Code</label>
+                <input type="text" class="form-input" formControlName="zipCode" placeholder="Enter zip code">
+              </div>
             </div>
           </div>
-        </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="goBack()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="clinicForm.invalid || isSubmitting">
+              <div class="btn-content">
+                @if (isSubmitting) {
+                  <div class="loading-spinner"></div>
+                }
+                <span>{{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Clinic' : 'Create Clinic') }}</span>
+              </div>
+            </button>
+          </div>
+        </form>
+      </div>
+    }
 
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" (click)="goBack()">
-            Cancel
-          </button>
-          <button type="submit" class="btn btn-primary" [disabled]="clinicForm.invalid || isSubmitting">
-            <div class="btn-content">
-              <div class="loading-spinner" *ngIf="isSubmitting"></div>
-              <span>{{ isSubmitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Clinic' : 'Create Clinic') }}</span>
-            </div>
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <div class="loading-container" *ngIf="isLoading">
-      <div class="loading-spinner"></div>
-      <p>Loading clinic details...</p>
-    </div>
+    @if (isLoading) {
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading clinic details...</p>
+      </div>
+    }
   </div>
 </div>

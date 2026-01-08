@@ -1,21 +1,19 @@
-import { Component, OnInit, OnDestroy, HostListener, Output, EventEmitter, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, HostListener, Output, EventEmitter } from '@angular/core';
+
 import { Router, NavigationEnd } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { NotificationModalComponent } from '../../shared/notification-modal/notification-model';
 import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, NotificationModalComponent],
+  imports: [],
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
 export class Header implements OnInit, OnDestroy {
   @Output() mobileMenuToggle = new EventEmitter<void>();
-  @ViewChild(NotificationModalComponent) notificationModal!: NotificationModalComponent;
   
   isLoggedIn = false;
   userName = '';
@@ -52,9 +50,8 @@ export class Header implements OnInit, OnDestroy {
 
     // Listen for notification updates
     window.addEventListener('notificationsUpdated', () => {
-      if (this.isLoggedIn) {
-        this.loadNotificationCount();
-      }
+      // Just reset count when notifications are updated
+      this.notificationCount = 0;
     });
   }
 
@@ -72,18 +69,11 @@ export class Header implements OnInit, OnDestroy {
     const token = sessionStorage.getItem('token');
     const user = sessionStorage.getItem('user');
     
-    const wasLoggedIn = this.isLoggedIn;
-    
     if (token && user) {
       this.isLoggedIn = true;
       const userData = JSON.parse(user);
       this.userName = userData.userName || 'User';
       this.userRole = userData.userRole || 'Guest';
-      
-      // Only load notifications if just logged in or role changed
-      if (!wasLoggedIn || this.userRole !== userData.userRole) {
-        this.loadNotificationCount();
-      }
     } else {
       this.isLoggedIn = false;
       this.userName = '';
@@ -131,7 +121,13 @@ export class Header implements OnInit, OnDestroy {
   }
 
   openNotifications() {
-    this.notificationModal.openModal();
+    // Navigate to notifications page instead of opening modal
+    if (this.userRole === 'Patient') {
+      this.router.navigate(['/patient/notifications']);
+    } else if (this.userRole === 'Doctor') {
+      this.router.navigate(['/doctor/notifications']);
+    }
+    this.notificationCount = 0;
   }
 
   loadNotificationCount() {

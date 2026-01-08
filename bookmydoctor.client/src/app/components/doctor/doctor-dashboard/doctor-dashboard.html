@@ -51,47 +51,113 @@
       </div>
     </div>
 
-    <div class="stat-card revenue">
+    <div class="stat-card cancelled">
       <div class="stat-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+          <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
         </svg>
       </div>
       <div class="stat-content">
-        <h3>₹{{ getTodayRevenue() }}</h3>
-        <p>Today's Revenue</p>
+        <h3>{{ getCancelledCount() }}</h3>
+        <p>Cancelled Today</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="analytics-section">
+    <div class="chart-container">
+      <h3>Today's Appointment Status</h3>
+      <div class="status-summary">
+        <div class="status-item completed">
+          <span class="count">{{ getCompletedCount() }}</span>
+          <span class="label">Completed</span>
+        </div>
+        <div class="status-item pending">
+          <span class="count">{{ getPendingCount() }}</span>
+          <span class="label">Pending</span>
+        </div>
+        <div class="status-item cancelled">
+          <span class="count">{{ getCancelledCount() }}</span>
+          <span class="label">Cancelled</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3>Weekly Performance</h3>
+      <div class="weekly-stats">
+        <div class="week-summary">
+          <div class="metric">
+            <span class="value">{{ getTotalWeeklyAppointments() }}</span>
+            <span class="label">Total Appointments</span>
+          </div>
+          <div class="metric">
+            <span class="value">{{ getTotalWeeklyCancellations() }}</span>
+            <span class="label">Cancellations</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="monthly-stats">
+    <h3>Monthly Overview</h3>
+    <div class="monthly-grid">
+      <div class="monthly-stat">
+        <h4>{{ monthlyStats.totalAppointments || 0 }}</h4>
+        <p>Total Appointments</p>
+      </div>
+      <div class="monthly-stat">
+        <h4>{{ monthlyStats.totalCancellations || 0 }}</h4>
+        <p>Cancellations</p>
+      </div>
+      <div class="monthly-stat">
+        <h4>₹{{ monthlyStats.totalRevenue || 0 }}</h4>
+        <p>Revenue</p>
+      </div>
+      <div class="monthly-stat">
+        <h4>{{ monthlyStats.averageRating || 0 }}/5</h4>
+        <p>Avg Rating</p>
       </div>
     </div>
   </div>
 
   <div class="dashboard-content">
-    <div class="today-schedule" *ngIf="todayAppointments.length > 0">
-      <h2>Today's Schedule</h2>
-      <div class="appointment-list">
-        <div class="appointment-item" *ngFor="let appointment of todayAppointments.slice(0, 5)">
-          <div class="appointment-time">
-            <span class="time">{{ appointment.startTime }}</span>
-            <span class="duration">30 min</span>
-          </div>
-          <div class="appointment-details">
-            <h4>{{ appointment.patientName }}</h4>
-            <p>{{ appointment.reason || 'General consultation' }}</p>
-          </div>
-          <div class="appointment-status">
-            <span class="status-badge" [class]="getStatusClass(appointment.status)">
-              {{ getStatusText(appointment.status) }}
-            </span>
-          </div>
+    @if (todayAppointments.length > 0) {
+      <div class="today-schedule">
+        <h2>Today's Schedule</h2>
+        <div class="appointment-list">
+          @for (appointment of todayAppointments.slice(0, 5); track appointment) {
+            <div class="appointment-item">
+              <div class="appointment-time">
+                <span class="time">{{ appointment.startTime }}</span>
+                <span class="duration">30 min</span>
+              </div>
+              <div class="appointment-details">
+                <h4>{{ appointment.patientName }}</h4>
+                <p>{{ appointment.reason || 'General consultation' }}</p>
+              </div>
+              <div class="appointment-status">
+                <span class="status-badge" [class]="getStatusClass(appointment.status)">
+                  {{ getStatusText(appointment.status) }}
+                </span>
+              </div>
+            </div>
+          }
         </div>
+        @if (todayAppointments.length > 5) {
+          <button class="view-all-btn" (click)="viewAppointments()">
+            View All Appointments ({{ todayAppointments.length }})
+          </button>
+        }
       </div>
-      <button class="view-all-btn" (click)="viewAppointments()" *ngIf="todayAppointments.length > 5">
-        View All Appointments ({{ todayAppointments.length }})
-      </button>
-    </div>
+    }
   </div>
 
-  <div class="loading-overlay" *ngIf="isLoading">
-    <div class="spinner"></div>
-    <p>Loading dashboard...</p>
-  </div>
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="spinner"></div>
+      <p>Loading dashboard...</p>
+    </div>
+  }
 </div>

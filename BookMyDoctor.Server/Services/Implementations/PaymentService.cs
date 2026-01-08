@@ -118,9 +118,9 @@ namespace BookMyDoctor.Server.Services.Implementations
 
             using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(payload));
-            var computedSignature = Convert.ToHexString(computedHash).ToLower();
+            var computedSignature = BitConverter.ToString(computedHash).Replace("-", "").ToLower();
 
-            return computedSignature == signature;
+            return computedSignature == signature.ToLower();
         }
     }
 }

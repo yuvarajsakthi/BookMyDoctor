@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,13 +13,12 @@ import { ClinicService, Clinic } from '../../../core/services/clinic.service';
   selector: 'app-clinic-management',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatChipsModule
-  ],
+],
   templateUrl: './clinic-management.html',
   styleUrl: './clinic-management.scss'
 })

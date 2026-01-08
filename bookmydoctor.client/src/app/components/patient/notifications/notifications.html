@@ -1,0 +1,54 @@
+<div class="notifications-container">
+  <div class="header">
+    <h1>Notifications</h1>
+    <p>Stay updated with your appointment reminders and updates</p>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Loading notifications...</p>
+    </div>
+  }
+
+  @if (!isLoading && notifications.length === 0) {
+    <div class="no-notifications">
+      <mat-icon>notifications_none</mat-icon>
+      <h3>No notifications</h3>
+      <p>You're all caught up! New notifications will appear here.</p>
+    </div>
+  }
+
+  @if (!isLoading && notifications.length > 0) {
+    <div class="notifications-list">
+      @for (notification of notifications; track notification) {
+        <mat-card
+          class="notification-card"
+          [class.unread]="!notification.isRead">
+          <div class="notification-content">
+            <div class="notification-icon">
+              <mat-icon [class]="getNotificationIcon(notification.type)">{{getNotificationIcon(notification.type)}}</mat-icon>
+            </div>
+            <div class="notification-body">
+              <h4>{{notification.title}}</h4>
+              <p>{{notification.message}}</p>
+              <div class="notification-meta">
+                <span class="timestamp">{{formatDate(notification.createdAt)}}</span>
+                @if (!notification.isRead) {
+                  <mat-chip class="unread-chip">New</mat-chip>
+                }
+              </div>
+            </div>
+            <div class="notification-actions">
+              @if (!notification.isRead) {
+                <button mat-icon-button (click)="markAsRead(notification.id)">
+                  <mat-icon>done</mat-icon>
+                </button>
+              }
+            </div>
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

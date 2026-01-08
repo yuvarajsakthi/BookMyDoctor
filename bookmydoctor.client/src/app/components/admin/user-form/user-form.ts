@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -12,10 +12,9 @@ import { BloodGroupUtil } from '../../../core/utils/blood-group.util';
 @Component({
   selector: 'app-user-form',
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MaterialModule
-  ],
+],
   templateUrl: './user-form.html',
   styleUrl: './user-form.scss',
 })

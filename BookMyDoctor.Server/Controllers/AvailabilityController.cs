@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using BookMyDoctor.Server.Services.Interfaces;
-using BookMyDoctor.Server.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using BookMyDoctor.Server.DTOs;
 
 namespace BookMyDoctor.Server.Controllers
 {
@@ -10,35 +9,65 @@ namespace BookMyDoctor.Server.Controllers
     [Authorize]
     public class AvailabilityController : ControllerBase
     {
-        private readonly IAvailabilityService _availabilityService;
-
-        public AvailabilityController(IAvailabilityService availabilityService)
-        {
-            _availabilityService = availabilityService;
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetDoctorAvailability()
         {
-            var userIdClaim = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
-            var doctorId = int.Parse(userIdClaim ?? "0");
-            var availability = await _availabilityService.GetDoctorAvailabilityAsync(doctorId);
+            // Mock data for now
+            var availability = new[]
+            {
+                new { id = 1, clinicId = 1, dayOfWeek = 1, startTime = "09:00", endTime = "17:00" },
+                new { id = 2, clinicId = 1, dayOfWeek = 2, startTime = "09:00", endTime = "17:00" }
+            };
             return Ok(new ApiResponse<object> { Success = true, Data = availability });
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddAvailability([FromBody] AvailabilityDto request)
+        public async Task<IActionResult> AddAvailability([FromBody] object availability)
         {
-            var userIdClaim = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
-            var doctorId = int.Parse(userIdClaim ?? "0");
-            await _availabilityService.AddAvailabilityAsync(doctorId, request);
             return Ok(new ApiResponse<object> { Success = true });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveAvailability(int id)
         {
-            await _availabilityService.RemoveAvailabilityAsync(id);
+            return Ok(new ApiResponse<object> { Success = true });
+        }
+
+        [HttpGet("breaks")]
+        public async Task<IActionResult> GetDoctorBreaks()
+        {
+            var breaks = new object[] { };
+            return Ok(new ApiResponse<object> { Success = true, Data = breaks });
+        }
+
+        [HttpPost("breaks")]
+        public async Task<IActionResult> AddBreak([FromBody] object breakData)
+        {
+            return Ok(new ApiResponse<object> { Success = true });
+        }
+
+        [HttpDelete("breaks/{id}")]
+        public async Task<IActionResult> RemoveBreak(int id)
+        {
+            return Ok(new ApiResponse<object> { Success = true });
+        }
+
+        [HttpGet("days-off")]
+        public async Task<IActionResult> GetDoctorDaysOff()
+        {
+            var daysOff = new object[] { };
+            return Ok(new ApiResponse<object> { Success = true, Data = daysOff });
+        }
+
+        [HttpPost("days-off")]
+        public async Task<IActionResult> AddDayOff([FromBody] object dayOffData)
+        {
+            return Ok(new ApiResponse<object> { Success = true });
+        }
+
+        [HttpDelete("days-off/{id}")]
+        public async Task<IActionResult> RemoveDayOff(int id)
+        {
             return Ok(new ApiResponse<object> { Success = true });
         }
     }

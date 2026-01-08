@@ -1,12 +1,13 @@
 <div class="app-container">
   <app-header (mobileMenuToggle)="toggleSidebar()" />
-  
+
   <main class="app-main">
-    <app-sidebar 
-      *ngIf="showSidebar" 
-      [isOpen]="sidebarOpen" 
-      (openChange)="onSidebarOpenChange($event)" />
-    
+    @if (showSidebar) {
+      <app-sidebar
+        [isOpen]="sidebarOpen"
+        (openChange)="onSidebarOpenChange($event)" />
+    }
+
     <div class="content-area">
       <div class="page-content">
         <router-outlet />
