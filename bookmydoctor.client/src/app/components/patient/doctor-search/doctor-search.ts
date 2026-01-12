@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,11 +13,13 @@ import { Router } from '@angular/router';
 import { DoctorService } from '../../../core/services/doctor.service';
 import { DoctorResponseDto } from '../../../core/models/doctor.models';
 import { ToastrService } from 'ngx-toastr';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-doctor-search',
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -48,7 +50,8 @@ export class DoctorSearchComponent implements OnInit {
   constructor(
     private doctorService: DoctorService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -57,18 +60,24 @@ export class DoctorSearchComponent implements OnInit {
 
   searchDoctors() {
     this.isLoading = true;
+    this.cdr.detectChanges();
+    
     this.doctorService.searchDoctors(
       this.searchFilters.specialty || undefined,
       this.searchFilters.location || undefined,
       this.searchFilters.date || undefined
+    ).pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
     ).subscribe({
       next: (doctors) => {
-        this.doctors = doctors;
-        this.isLoading = false;
+        this.doctors = doctors || [];
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to search doctors');
-        this.isLoading = false;
+        this.doctors = [];
       }
     });
   }

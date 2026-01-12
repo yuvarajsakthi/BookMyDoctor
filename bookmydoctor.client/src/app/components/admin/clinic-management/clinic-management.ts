@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,11 +8,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { ToastrService } from 'ngx-toastr';
 import { ClinicService, Clinic } from '../../../core/services/clinic.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-clinic-management',
   standalone: true,
   imports: [
+    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -30,7 +32,8 @@ export class ClinicManagementComponent implements OnInit {
   constructor(
     private clinicService: ClinicService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -39,14 +42,20 @@ export class ClinicManagementComponent implements OnInit {
 
   loadClinics() {
     this.isLoading = true;
-    this.clinicService.getClinics().subscribe({
+    this.cdr.detectChanges();
+    
+    this.clinicService.getClinics().pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (clinics) => {
+        this.toastr.success('Clinics loaded successfully');
         this.dataSource.data = clinics;
-        this.isLoading = false;
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load clinics');
-        this.isLoading = false;
       }
     });
   }

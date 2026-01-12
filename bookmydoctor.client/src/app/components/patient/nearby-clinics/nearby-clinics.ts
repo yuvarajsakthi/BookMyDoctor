@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { PatientService } from '../../../core/services/patient.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-nearby-clinics',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './nearby-clinics.html',
   styleUrl: './nearby-clinics.scss'
 })
@@ -21,7 +22,8 @@ export class NearbyClinicsComponent implements OnInit {
   constructor(
     private patientService: PatientService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -30,14 +32,21 @@ export class NearbyClinicsComponent implements OnInit {
 
   loadClinics() {
     this.isLoading = true;
-    this.patientService.getNearbyClinics().subscribe({
+    this.cdr.detectChanges();
+    
+    this.patientService.getNearbyClinics().pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (response) => {
-        this.clinics = response.data || [];
-        this.isLoading = false;
+        this.toastr.success('Clinics loaded successfully');
+        this.clinics = response.data || response || [];
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load clinics');
-        this.isLoading = false;
+        this.clinics = [];
       }
     });
   }
@@ -49,6 +58,8 @@ export class NearbyClinicsComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.cdr.detectChanges();
+    
     navigator.geolocation.getCurrentPosition(
       (position) => {
         this.userLocation = {
@@ -60,6 +71,7 @@ export class NearbyClinicsComponent implements OnInit {
       () => {
         this.toastr.error('Unable to get your location');
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     );
   }
@@ -80,6 +92,8 @@ export class NearbyClinicsComponent implements OnInit {
     .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
 
     this.isLoading = false;
+    this.cdr.detectChanges();
+    
     if (this.clinics.length === 0) {
       this.toastr.info('No clinics found within 10km of your location');
     } else {

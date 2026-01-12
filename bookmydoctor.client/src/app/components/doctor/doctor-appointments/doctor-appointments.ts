@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,13 +9,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AppointmentService, AppointmentStatusUpdateDto } from '../../../core/services/appointment.service';
+import { AppointmentService, AppointmentStatusUpdateDto, AppointmentApprovalDto, BlockSlotDto, DoctorRescheduleDto } from '../../../core/services/appointment.service';
 import { AppointmentResponseDto } from '../../../core/models/admin.models';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-doctor-appointments',
   standalone: true,
   imports: [
+    CommonModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -29,31 +31,54 @@ import { AppointmentResponseDto } from '../../../core/models/admin.models';
 })
 export class DoctorAppointmentsComponent implements OnInit {
   appointments: AppointmentResponseDto[] = [];
+  pendingAppointments: AppointmentResponseDto[] = [];
   displayedColumns = ['patientName', 'date', 'time', 'status', 'actions'];
   isLoading = false;
+  activeTab = 'pending';
 
   constructor(
     private appointmentService: AppointmentService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-    this.loadAppointments();
+    this.loadPendingAppointments();
+    this.loadTodayAppointments();
   }
 
-  loadAppointments() {
-    this.isLoading = true;
-    this.appointmentService.getTodayAppointmentsForDoctor().subscribe({
+  loadPendingAppointments() {
+    this.appointmentService.getDoctorPendingAppointments().subscribe({
       next: (appointments) => {
-        this.appointments = appointments;
-        this.isLoading = false;
+        this.pendingAppointments = appointments || [];
       },
-      error: () => {
-        this.toastr.error('Failed to load appointments');
-        this.isLoading = false;
+      error: (error) => {
+        this.toastr.error('Failed to load pending appointments');
       }
     });
+  }
+
+  loadTodayAppointments() {
+    this.isLoading = true;
+    this.appointmentService.getTodayAppointmentsForDoctor()
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (appointments) => {
+          this.appointments = appointments?.filter(a => 
+            this.getStatusText(a.status) === 'Approved' || this.getStatusText(a.status) === 'Booked'
+          ) || [];
+        },
+        error: (error) => {
+          this.appointments = [];
+          this.toastr.error('Failed to load appointments');
+        }
+      });
   }
 
   updateStatus(appointmentId: number, status: number) {
@@ -61,7 +86,8 @@ export class DoctorAppointmentsComponent implements OnInit {
     this.appointmentService.updateAppointmentStatus(appointmentId, statusUpdate).subscribe({
       next: () => {
         this.toastr.success('Appointment status updated');
-        this.loadAppointments();
+        this.loadPendingAppointments();
+        this.loadTodayAppointments();
       },
       error: () => {
         this.toastr.error('Failed to update appointment status');
@@ -69,22 +95,81 @@ export class DoctorAppointmentsComponent implements OnInit {
     });
   }
 
-  acceptAppointment(appointmentId: number) {
-    this.updateStatus(appointmentId, 1); // Booked status
+  approveAppointment(appointmentId: number) {
+    const decision: AppointmentApprovalDto = { isApproved: true };
+    this.appointmentService.approveOrRejectAppointment(appointmentId, decision).subscribe({
+      next: () => {
+        this.toastr.success('Appointment approved successfully');
+        this.loadPendingAppointments();
+        this.loadTodayAppointments();
+      },
+      error: (error) => {
+        this.toastr.error('Failed to approve appointment');
+      }
+    });
   }
 
-  declineAppointment(appointmentId: number) {
-    if (confirm('Are you sure you want to decline this appointment?')) {
-      this.updateStatus(appointmentId, 3); // Cancelled status
-    }
+  rejectAppointment(appointmentId: number) {
+    const decision: AppointmentApprovalDto = { 
+      isApproved: false, 
+      reason: 'Doctor unavailable',
+      blockSlot: true 
+    };
+    this.appointmentService.approveOrRejectAppointment(appointmentId, decision).subscribe({
+      next: () => {
+        this.toastr.success('Appointment rejected and slot blocked');
+        this.loadPendingAppointments();
+      },
+      error: (error) => {
+        this.toastr.error('Failed to reject appointment');
+      }
+    });
   }
 
   completeAppointment(appointmentId: number) {
-    this.updateStatus(appointmentId, 2); // Completed status
+    this.appointmentService.completeAppointment(appointmentId).subscribe({
+      next: () => {
+        this.toastr.success('Appointment completed successfully');
+        this.loadTodayAppointments();
+      },
+      error: (error) => {
+        this.toastr.error('Failed to complete appointment');
+      }
+    });
+  }
+
+  rescheduleAppointment(appointment: any) {
+    const newDate = prompt('Enter new date (YYYY-MM-DD):');
+    const newTime = prompt('Enter new time (HH:MM):');
+    const reason = prompt('Enter reason for reschedule:');
+    
+    if (newDate && newTime) {
+      const rescheduleData: DoctorRescheduleDto = {
+        appointmentId: appointment.appointmentId,
+        newDate: newDate,
+        newStartTime: newTime,
+        reason: reason || 'Doctor rescheduled'
+      };
+      
+      this.appointmentService.doctorRescheduleAppointment(appointment.appointmentId, rescheduleData).subscribe({
+        next: () => {
+          this.toastr.success('Appointment rescheduled successfully');
+          this.loadPendingAppointments();
+          this.loadTodayAppointments();
+        },
+        error: (error) => {
+          this.toastr.error('Failed to reschedule appointment');
+        }
+      });
+    }
   }
 
   blockSlot(date: string, startTime: string, endTime: string) {
-    const blockData = {
+    // Get user data for doctorId and clinicId
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const blockData: BlockSlotDto = {
+      doctorId: user.userId || 0,
+      clinicId: 1, // Default clinic - should be dynamic
       date: date,
       startTime: startTime,
       endTime: endTime,
@@ -94,7 +179,7 @@ export class DoctorAppointmentsComponent implements OnInit {
     this.appointmentService.blockTimeSlot(blockData).subscribe({
       next: () => {
         this.toastr.success('Time slot blocked');
-        this.loadAppointments();
+        this.loadTodayAppointments();
       },
       error: () => {
         this.toastr.error('Failed to block time slot');
@@ -117,10 +202,12 @@ export class DoctorAppointmentsComponent implements OnInit {
     if (typeof status === 'string') return status;
     switch (status) {
       case 0: return 'Pending';
-      case 1: return 'Booked';
-      case 2: return 'Completed';
-      case 3: return 'Cancelled';
-      case 4: return 'PaymentDone';
+      case 1: return 'Approved';
+      case 2: return 'Rejected';
+      case 3: return 'Booked';
+      case 4: return 'Completed';
+      case 5: return 'Cancelled';
+      case 6: return 'PaymentDone';
       default: return 'Unknown';
     }
   }

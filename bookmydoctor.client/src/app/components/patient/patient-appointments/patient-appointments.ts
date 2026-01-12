@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { PatientService } from '../../../core/services/patient.service';
+import { AppointmentService, AppointmentRescheduleDto } from '../../../core/services/appointment.service';
 import { PaymentService } from '../../../core/services/payment.service';
 import { environment } from '../../../../environments/environment';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-patient-appointments',
@@ -30,8 +32,11 @@ export class PatientAppointmentsComponent implements OnInit {
 
   constructor(
     private patientService: PatientService,
+    private appointmentService: AppointmentService,
     private paymentService: PaymentService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -40,14 +45,21 @@ export class PatientAppointmentsComponent implements OnInit {
 
   loadAppointments() {
     this.isLoading = true;
-    this.patientService.getPatientAppointments().subscribe({
+    this.cdr.detectChanges();
+    
+    this.patientService.getPatientAppointments().pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (response) => {
-        this.appointments = response.data || [];
-        this.isLoading = false;
+        this.toastr.success('Appointments loaded successfully');
+        this.appointments = response.data || response || [];
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load appointments');
-        this.isLoading = false;
+        this.appointments = [];
       }
     });
   }
@@ -67,13 +79,34 @@ export class PatientAppointmentsComponent implements OnInit {
   }
 
   rescheduleAppointment(appointmentId: number) {
-    // Navigate to reschedule page with appointment ID
-    window.location.href = `/patient/reschedule-appointment/${appointmentId}`;
+    const newDate = prompt('Enter new date (YYYY-MM-DD):');
+    const newTime = prompt('Enter new time (HH:MM):');
+    const reason = prompt('Enter reason for reschedule:');
+    
+    if (newDate && newTime) {
+      const rescheduleData: AppointmentRescheduleDto = {
+        newDate: newDate,
+        newStartTime: newTime,
+        reason: reason || 'Patient requested reschedule'
+      };
+      
+      this.appointmentService.rescheduleAppointment(appointmentId, rescheduleData).subscribe({
+        next: () => {
+          this.toastr.success('Reschedule request submitted successfully. Waiting for doctor approval.');
+          this.loadAppointments();
+        },
+        error: (error) => {
+          this.toastr.error('Failed to submit reschedule request');
+        }
+      });
+    }
   }
 
   getStatusClass(status: string): string {
     switch (status?.toLowerCase()) {
       case 'pending': return 'status-pending';
+      case 'approved': return 'status-approved';
+      case 'rejected': return 'status-rejected';
       case 'booked': return 'status-booked';
       case 'completed': return 'status-completed';
       case 'cancelled': return 'status-cancelled';
@@ -83,11 +116,11 @@ export class PatientAppointmentsComponent implements OnInit {
   }
 
   canRescheduleAppointment(status: string): boolean {
-    return status?.toLowerCase() === 'booked' || status?.toLowerCase() === 'pending';
+    return status?.toLowerCase() === 'booked' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'approved';
   }
 
   canCancelAppointment(status: string): boolean {
-    return status?.toLowerCase() === 'booked' || status?.toLowerCase() === 'pending';
+    return status?.toLowerCase() === 'booked' || status?.toLowerCase() === 'pending' || status?.toLowerCase() === 'approved';
   }
 
   canPayAppointment(status: string): boolean {
@@ -102,32 +135,37 @@ export class PatientAppointmentsComponent implements OnInit {
   closePaymentModal() {
     this.showPaymentModal = false;
     this.selectedAppointment = null;
+    this.cdr.detectChanges();
   }
 
   processPayment() {
     if (!this.selectedAppointment) return;
 
-    // Create payment order
-    this.paymentService.completePaymentAfterAppointment(this.selectedAppointment.appointmentId)
-      .subscribe({
-        next: (response) => {
-          if (response.success && response.data) {
-            this.openRazorpayCheckout(response.data);
-          }
-        },
-        error: (error) => {
+    // Create payment order first
+    this.paymentService.createPayment({
+      appointmentId: this.selectedAppointment.appointmentId,
+      amount: 500
+    }).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.openRazorpayCheckout(response.data);
+        } else {
           this.toastr.error('Failed to create payment order');
         }
-      });
+      },
+      error: (error) => {
+        this.toastr.error('Failed to create payment order');
+      }
+    });
   }
 
   private openRazorpayCheckout(paymentData: any) {
     const options = {
-      key: environment.razorpayKeyId,
+      key: environment.razorpayKeyId || 'rzp_test_key',
       amount: paymentData.amount * 100, // Amount in paise
-      currency: paymentData.currency,
+      currency: paymentData.currency || 'INR',
       name: 'BookMyDoctor',
-      description: paymentData.description,
+      description: paymentData.description || 'Consultation Fee',
       order_id: paymentData.razorpayOrderId,
       prefill: {
         name: 'Patient Name',
@@ -135,26 +173,45 @@ export class PatientAppointmentsComponent implements OnInit {
       },
       theme: {
         color: '#3498db'
+      },
+      handler: (response: any) => {
+        this.toastr.info('Processing payment verification...');
+        this.verifyPayment(response);
+      },
+      modal: {
+        ondismiss: () => {
+          this.toastr.info('Payment cancelled');
+          this.closePaymentModal();
+        }
       }
     };
 
     this.paymentService.openRazorpay(options)
       .then((response: any) => {
-        // Verify payment
+        this.toastr.info('Payment completed, verifying...');
         this.verifyPayment(response);
       })
-      .catch((error: any) => {
-        this.toastr.error('Payment cancelled or failed');
-        this.closePaymentModal();
+      .catch(() => {
+        this.toastr.info('Payment cancelled');
+        this.router.navigate(['/patient/appointments']);
       });
   }
 
   private verifyPayment(razorpayResponse: any) {
+    // Check if we have all required fields
+    if (!razorpayResponse.razorpay_order_id || !razorpayResponse.razorpay_payment_id || !razorpayResponse.razorpay_signature) {
+      this.toastr.error('Payment verification failed: Missing required data');
+      this.closePaymentModal();
+      return;
+    }
+
     const verifyRequest = {
       razorpayOrderId: razorpayResponse.razorpay_order_id,
       razorpayPaymentId: razorpayResponse.razorpay_payment_id,
       razorpaySignature: razorpayResponse.razorpay_signature
     };
+
+    this.toastr.info('Verifying payment...');
 
     this.paymentService.verifyPayment(verifyRequest)
       .subscribe({
@@ -162,11 +219,15 @@ export class PatientAppointmentsComponent implements OnInit {
           if (response.success) {
             this.selectedAppointment.status = 'PaymentDone';
             this.toastr.success('Payment completed successfully!');
+            this.cdr.detectChanges();
+            this.closePaymentModal();
+          } else {
+            this.toastr.error('Payment verification failed');
             this.closePaymentModal();
           }
         },
         error: (error) => {
-          this.toastr.error('Payment verification failed');
+          this.toastr.error('Payment verification failed: ' + (error?.error?.message || 'Unknown error'));
           this.closePaymentModal();
         }
       });

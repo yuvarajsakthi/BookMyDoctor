@@ -403,6 +403,27 @@
   background: #e9ecef;
 }
 
+.manage-appointments-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.manage-appointments-btn:hover {
+  background: #0056b3;
+}
+
 .loading-overlay {
   position: fixed;
   top: 0;

@@ -13,6 +13,11 @@ export class AvailabilityService {
 
   constructor(private http: HttpClient) {}
 
+  getAllAvailabilityData(): Observable<any> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/all`)
+      .pipe(map(response => response.data || { availability: [], breaks: [], daysOff: [] }));
+  }
+
   getDoctorAvailability(): Observable<any[]> {
     return this.http.get<ApiResponse<any[]>>(this.apiUrl)
       .pipe(map(response => response.data || []));

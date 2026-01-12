@@ -4,6 +4,7 @@ using BookMyDoctor.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookMyDoctor.Server.Migrations
 {
     [DbContext(typeof(BmdContext))]
-    partial class BmdContextModelSnapshot : ModelSnapshot
+    [Migration("20260111110209_UpdateAppointmentStatusEnum")]
+    partial class UpdateAppointmentStatusEnum
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

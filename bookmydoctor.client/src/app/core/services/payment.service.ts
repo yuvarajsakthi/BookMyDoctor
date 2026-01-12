@@ -34,7 +34,7 @@ declare var Razorpay: any;
   providedIn: 'root'
 })
 export class PaymentService {
-  private readonly apiUrl = `${environment.apiUrl}/api/payment`;
+  private readonly apiUrl = `${environment.apiUrl}/api/payments`;
 
   constructor(private http: HttpClient) {}
 

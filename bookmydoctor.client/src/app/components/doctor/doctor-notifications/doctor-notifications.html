@@ -1,54 +1,80 @@
 <div class="notifications-container">
   <div class="header">
-    <h1>Appointment Notifications</h1>
-    <p>Stay updated with your appointment activities</p>
+    <div class="header-content">
+      <div class="header-text">
+        <h1>Notifications</h1>
+        <p>Stay updated with your appointment activities</p>
+      </div>
+      <div class="header-actions">
+        <button class="mark-all-btn" (click)="markAllAsRead()" *ngIf="getUnreadCount() > 0">
+          <mat-icon>done_all</mat-icon>
+          Mark all read
+        </button>
+        <button class="refresh-btn" (click)="loadNotifications()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+    
+    <div class="notification-stats" *ngIf="notifications.length > 0">
+      <div class="stat-item">
+        <span class="stat-number">{{ notifications.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-item unread">
+        <span class="stat-number">{{ getUnreadCount() }}</span>
+        <span class="stat-label">Unread</span>
+      </div>
+    </div>
   </div>
 
-  @if (isLoading) {
-    <div class="loading-container">
-      <mat-spinner></mat-spinner>
-      <p>Loading notifications...</p>
+  @if (!isLoading && notifications.length > 0) {
+    <div class="notifications-list">
+      @for (notification of notifications; track notification.id) {
+        <div class="notification-card" [class.unread]="!notification.isRead">
+          <div class="notification-indicator"></div>
+          <div class="notification-content">
+            <div class="notification-icon">
+              <mat-icon>{{ getNotificationIcon(notification.type) }}</mat-icon>
+            </div>
+            <div class="notification-body">
+              <div class="notification-header">
+                <h4>{{ notification.title }}</h4>
+                <span class="timestamp">{{ formatDate(notification.createdAt) }}</span>
+              </div>
+              <p class="notification-message">{{ notification.message }}</p>
+              <div class="notification-footer">
+                @if (!notification.isRead) {
+                  <span class="unread-badge">New</span>
+                }
+                <div class="notification-type">{{ getNotificationType(notification.type) }}</div>
+              </div>
+            </div>
+            <div class="notification-actions">
+              <button class="delete-btn" (click)="deleteNotification(notification.id)">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   }
 
   @if (!isLoading && notifications.length === 0) {
-    <div class="no-notifications">
-      <mat-icon>notifications_none</mat-icon>
-      <h3>No notifications</h3>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <mat-icon>notifications_none</mat-icon>
+      </div>
+      <h3>No notifications yet</h3>
       <p>You're all caught up! New appointment notifications will appear here.</p>
     </div>
   }
 
-  @if (!isLoading && notifications.length > 0) {
-    <div class="notifications-list">
-      @for (notification of notifications; track notification) {
-        <mat-card
-          class="notification-card"
-          [class.unread]="!notification.isRead">
-          <div class="notification-content">
-            <div class="notification-icon">
-              <mat-icon>{{getNotificationIcon(notification.type)}}</mat-icon>
-            </div>
-            <div class="notification-body">
-              <h4>{{notification.title}}</h4>
-              <p>{{notification.message}}</p>
-              <div class="notification-meta">
-                <span class="timestamp">{{formatDate(notification.createdAt)}}</span>
-                @if (!notification.isRead) {
-                  <mat-chip class="unread-chip">New</mat-chip>
-                }
-              </div>
-            </div>
-            <div class="notification-actions">
-              @if (!notification.isRead) {
-                <button mat-icon-button (click)="markAsRead(notification.id)">
-                  <mat-icon>done</mat-icon>
-                </button>
-              }
-            </div>
-          </div>
-        </mat-card>
-      }
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading notifications...</p>
     </div>
   }
 </div>

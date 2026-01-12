@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { ToastrService } from 'ngx-toastr';
 import { NotificationService } from '../../../core/services/notification.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-notifications',
@@ -26,7 +27,8 @@ export class Notifications implements OnInit {
 
   constructor(
     private notificationService: NotificationService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -34,14 +36,22 @@ export class Notifications implements OnInit {
   }
 
   loadNotifications() {
-    this.notificationService.getNotifications().subscribe({
+    this.isLoading = true;
+    this.cdr.detectChanges();
+    
+    this.notificationService.getNotifications().pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (response) => {
-        this.notifications = response || [];
-        this.isLoading = false;
+        this.toastr.success('Notifications loaded successfully');
+        this.notifications = response?.data || response || [];
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load notifications');
-        this.isLoading = false;
+        this.notifications = [];
       }
     });
   }

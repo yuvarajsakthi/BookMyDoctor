@@ -144,9 +144,9 @@
   <!-- Availability Modal -->
   @if (showAvailabilityModal) {
     <div class="modal-overlay" (click)="closeAvailabilityModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-content availability-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>Doctor Availability</h2>
+          <h2>Doctor Availability Schedule</h2>
           <button class="close-btn" (click)="closeAvailabilityModal()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -154,34 +154,49 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Doctor</th>
-                  <th>Day</th>
-                  <th>Start Time</th>
-                  <th>End Time</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (avail of availability; track avail) {
-                  <tr class="table-row">
-                    <td>{{ avail.doctorName }}</td>
-                    <td>{{ getDayName(avail.dayOfWeek) }}</td>
-                    <td>{{ avail.startTime }}</td>
-                    <td>{{ avail.endTime }}</td>
-                    <td>
+          @if (availability.length > 0) {
+            <div class="availability-grid">
+              @for (avail of availability; track avail) {
+                <div class="availability-card">
+                  <div class="doctor-info">
+                    <div class="doctor-avatar">
+                      {{ getDoctorInitials(avail.doctorName || 'Doctor') }}
+                    </div>
+                    <div class="doctor-details">
+                      <h4>{{ avail.doctorName || 'Unknown Doctor' }}</h4>
+                      <p>{{ avail.specialization || 'General Practice' }}</p>
+                    </div>
+                  </div>
+                  <div class="schedule-info">
+                    <div class="schedule-item">
+                      <span class="label">Day:</span>
+                      <span class="value">{{ getDayName(avail.dayOfWeek) }}</span>
+                    </div>
+                    <div class="schedule-item">
+                      <span class="label">Time:</span>
+                      <span class="value">{{ avail.startTime }} - {{ avail.endTime }}</span>
+                    </div>
+                    <div class="schedule-item">
+                      <span class="label">Status:</span>
                       <span class="status-badge" [class]="avail.isActive ? 'active' : 'inactive'">
-                        {{ avail.isActive ? 'Active' : 'Inactive' }}
+                        {{ avail.isActive ? 'Available' : 'Unavailable' }}
                       </span>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-modal-state">
+              <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <h3>No Availability Data</h3>
+              <p>No doctor availability schedules found.</p>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -190,7 +205,7 @@
   <!-- Payments Modal -->
   @if (showPaymentsModal) {
     <div class="modal-overlay" (click)="closePaymentsModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-content payments-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h2>Payment Records</h2>
           <button class="close-btn" (click)="closePaymentsModal()">
@@ -200,32 +215,57 @@
           </button>
         </div>
         <div class="modal-body">
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Appointment</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (payment of payments; track payment) {
-                  <tr class="table-row">
-                    <td>{{ payment.appointmentDetails }}</td>
-                    <td>₹{{ payment.amount }}</td>
-                    <td>
-                      <span class="status-badge" [class]="getPaymentStatusClass(payment.paymentStatus)">
-                        {{ payment.paymentStatus }}
-                      </span>
-                    </td>
-                    <td>{{ formatDate(payment.createdAt) }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+          @if (payments.length > 0) {
+            <div class="payments-grid">
+              @for (payment of payments; track payment) {
+                <div class="payment-card">
+                  <div class="payment-header">
+                    <div class="payment-id">
+                      <span class="label">Payment ID:</span>
+                      <span class="value">#{{ payment.paymentId || payment.id || 'N/A' }}</span>
+                    </div>
+                    <span class="status-badge" [class]="getPaymentStatusClass(payment.paymentStatus || payment.status)">
+                      {{ payment.paymentStatus || payment.status || 'Unknown' }}
+                    </span>
+                  </div>
+                  <div class="payment-details">
+                    <div class="detail-row">
+                      <span class="label">Patient:</span>
+                      <span class="value">{{ payment.patientName || payment.userName || 'N/A' }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="label">Doctor:</span>
+                      <span class="value">{{ payment.doctorName || 'N/A' }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="label">Amount:</span>
+                      <span class="value amount">₹{{ payment.amount || payment.totalAmount || 0 }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="label">Date:</span>
+                      <span class="value">{{ formatDate(payment.createdAt || payment.paymentDate) }}</span>
+                    </div>
+                    @if (payment.razorpayPaymentId) {
+                      <div class="detail-row">
+                        <span class="label">Razorpay ID:</span>
+                        <span class="value">{{ payment.razorpayPaymentId }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-modal-state">
+              <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-6h2v6zm0-8h-2V7h2v4z"/>
+                </svg>
+              </div>
+              <h3>No Payment Records</h3>
+              <p>No payment records found in the system.</p>
+            </div>
+          }
         </div>
       </div>
     </div>

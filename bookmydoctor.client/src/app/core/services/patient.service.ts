@@ -68,11 +68,11 @@ export class PatientService {
   }
 
   getPaymentHistory(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/payment/history`);
+    return this.http.get(`${this.apiUrl}/payments/history`);
   }
 
   downloadInvoice(paymentId: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/payment/invoice/${paymentId}`, { responseType: 'blob' });
+    return this.http.get(`${this.apiUrl}/payments/invoice/${paymentId}`, { responseType: 'blob' });
   }
 
   private getCurrentUserId(): number {

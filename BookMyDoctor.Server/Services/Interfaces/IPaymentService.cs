@@ -9,5 +9,8 @@ namespace BookMyDoctor.Server.Services.Interfaces
         Task<PaymentModel> VerifyPaymentAsync(string razorpayOrderId, string razorpayPaymentId, string razorpaySignature);
         Task<PaymentModel> CancelPaymentAsync(int appointmentId);
         Task<PaymentModel?> GetPaymentByAppointmentIdAsync(int appointmentId);
+        Task<PaymentModel?> GetPaymentByIdAsync(int paymentId);
+        Task<IEnumerable<PaymentModel>> GetPaymentHistoryByUserAsync(int userId);
+        Task<IEnumerable<PaymentModel>> GetAllPaymentsAsync();
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,6 +13,7 @@ import { MatCardModule } from '@angular/material/card';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { PatientService } from '../../../core/services/patient.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-reschedule-appointment',
@@ -38,7 +39,8 @@ export class RescheduleAppointment implements OnInit {
     private patientService: PatientService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -59,12 +61,20 @@ export class RescheduleAppointment implements OnInit {
   }
 
   loadAppointment() {
-    this.patientService.getAppointmentById(this.appointmentId).subscribe({
-      next: (response) => {
-        this.appointment = response;
+    this.isLoading = true;
+    this.cdr.detectChanges();
+    
+    this.patientService.getAppointmentById(this.appointmentId).pipe(
+      finalize(() => {
         this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (response) => {
+        this.toastr.success('Appointment details loaded successfully');
+        this.appointment = response?.data || response;
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load appointment');
         this.router.navigate(['/patient/appointments']);
       }

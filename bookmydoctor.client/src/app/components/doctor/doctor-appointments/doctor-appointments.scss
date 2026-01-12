@@ -17,6 +17,40 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.tab-navigation {
+  display: flex;
+  background: white;
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  button {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s;
+
+    &.active {
+      background: #007bff;
+      color: white;
+    }
+
+    &:hover:not(.active) {
+      background: #f8f9fa;
+    }
+  }
+}
+
+.tab-content {
+  min-height: 400px;
+}
+
 .header-left {
   display: flex;
   align-items: center;
@@ -235,6 +269,7 @@
 .action-buttons {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .btn-accept,
@@ -250,6 +285,24 @@
   align-items: center;
   gap: 4px;
   transition: background-color 0.2s;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.btn-reschedule {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.2s;
+  min-width: 80px;
+  justify-content: center;
 }
 
 .btn-reject {
@@ -264,11 +317,17 @@
   align-items: center;
   gap: 4px;
   transition: background-color 0.2s;
+  min-width: 80px;
+  justify-content: center;
 }
 
 .btn-accept:hover,
 .btn-complete:hover {
   background: #218838;
+}
+
+.btn-reschedule:hover {
+  background: #0056b3;
 }
 
 .btn-reject:hover {

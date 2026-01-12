@@ -4,6 +4,7 @@ using BookMyDoctor.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookMyDoctor.Server.Migrations
 {
     [DbContext(typeof(BmdContext))]
-    partial class BmdContextModelSnapshot : ModelSnapshot
+    [Migration("20260109085222_AddClinicIdToAvailability")]
+    partial class AddClinicIdToAvailability
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,29 +87,29 @@ namespace BookMyDoctor.Server.Migrations
                             PatientId = 3,
                             Reason = "Regular checkup",
                             StartTime = new TimeOnly(10, 0, 0),
-                            Status = 4
+                            Status = 2
                         },
                         new
                         {
                             AppointmentId = 2,
-                            AppointmentDate = new DateOnly(2026, 1, 12),
+                            AppointmentDate = new DateOnly(2026, 1, 10),
                             AppointmentType = 0,
                             ClinicId = 1,
-                            CreatedAt = new DateTime(2026, 1, 11, 11, 2, 6, 567, DateTimeKind.Utc).AddTicks(8664),
+                            CreatedAt = new DateTime(2026, 1, 9, 8, 52, 16, 449, DateTimeKind.Utc).AddTicks(4550),
                             DoctorId = 2,
                             EndTime = new TimeOnly(14, 30, 0),
                             PatientId = 3,
                             Reason = "Follow-up consultation",
                             StartTime = new TimeOnly(14, 0, 0),
-                            Status = 3
+                            Status = 1
                         },
                         new
                         {
                             AppointmentId = 3,
-                            AppointmentDate = new DateOnly(2026, 1, 18),
+                            AppointmentDate = new DateOnly(2026, 1, 16),
                             AppointmentType = 0,
                             ClinicId = 1,
-                            CreatedAt = new DateTime(2026, 1, 11, 11, 2, 6, 567, DateTimeKind.Utc).AddTicks(8667),
+                            CreatedAt = new DateTime(2026, 1, 9, 8, 52, 16, 449, DateTimeKind.Utc).AddTicks(4557),
                             DoctorId = 2,
                             EndTime = new TimeOnly(11, 30, 0),
                             PatientId = 3,

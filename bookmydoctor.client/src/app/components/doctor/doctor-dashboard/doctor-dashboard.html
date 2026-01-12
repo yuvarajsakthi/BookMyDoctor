@@ -64,70 +64,12 @@
     </div>
   </div>
 
-  <div class="analytics-section">
-    <div class="chart-container">
-      <h3>Today's Appointment Status</h3>
-      <div class="status-summary">
-        <div class="status-item completed">
-          <span class="count">{{ getCompletedCount() }}</span>
-          <span class="label">Completed</span>
-        </div>
-        <div class="status-item pending">
-          <span class="count">{{ getPendingCount() }}</span>
-          <span class="label">Pending</span>
-        </div>
-        <div class="status-item cancelled">
-          <span class="count">{{ getCancelledCount() }}</span>
-          <span class="label">Cancelled</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="chart-container">
-      <h3>Weekly Performance</h3>
-      <div class="weekly-stats">
-        <div class="week-summary">
-          <div class="metric">
-            <span class="value">{{ getTotalWeeklyAppointments() }}</span>
-            <span class="label">Total Appointments</span>
-          </div>
-          <div class="metric">
-            <span class="value">{{ getTotalWeeklyCancellations() }}</span>
-            <span class="label">Cancellations</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="monthly-stats">
-    <h3>Monthly Overview</h3>
-    <div class="monthly-grid">
-      <div class="monthly-stat">
-        <h4>{{ monthlyStats.totalAppointments || 0 }}</h4>
-        <p>Total Appointments</p>
-      </div>
-      <div class="monthly-stat">
-        <h4>{{ monthlyStats.totalCancellations || 0 }}</h4>
-        <p>Cancellations</p>
-      </div>
-      <div class="monthly-stat">
-        <h4>₹{{ monthlyStats.totalRevenue || 0 }}</h4>
-        <p>Revenue</p>
-      </div>
-      <div class="monthly-stat">
-        <h4>{{ monthlyStats.averageRating || 0 }}/5</h4>
-        <p>Avg Rating</p>
-      </div>
-    </div>
-  </div>
-
   <div class="dashboard-content">
     @if (todayAppointments.length > 0) {
       <div class="today-schedule">
         <h2>Today's Schedule</h2>
         <div class="appointment-list">
-          @for (appointment of todayAppointments.slice(0, 5); track appointment) {
+          @for (appointment of todayAppointments.slice(0, 5); track appointment.appointmentId) {
             <div class="appointment-item">
               <div class="appointment-time">
                 <span class="time">{{ appointment.startTime }}</span>
@@ -150,6 +92,17 @@
             View All Appointments ({{ todayAppointments.length }})
           </button>
         }
+        <button class="manage-appointments-btn" (click)="viewAppointments()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+          Manage Appointments
+        </button>
+      </div>
+    } @else {
+      <div class="no-appointments">
+        <h3>No appointments today</h3>
+        <p>You have no appointments scheduled for today.</p>
       </div>
     }
   </div>

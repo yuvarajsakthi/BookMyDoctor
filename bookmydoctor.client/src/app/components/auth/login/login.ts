@@ -160,7 +160,6 @@ export class LoginComponent {
     if (userRole == null) {
       this.toastr.warning('Invalid user role, redirecting to patient dashboard');
       this.router.navigate(['/dashboard/patient']).catch(err => {
-        console.error('Navigation failed:', err);
         this.toastr.error('Navigation failed');
       });
       return;
@@ -202,7 +201,6 @@ export class LoginComponent {
     }
     
     this.router.navigate([route]).catch(err => {
-      console.error('Navigation failed:', err);
       this.toastr.error('Navigation failed');
     });
   }

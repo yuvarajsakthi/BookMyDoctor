@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from '../../../shared/material.module';
 import { AdminService } from '../../../core/services/admin.service';
 import { UserResponseDto } from '../../../core/models/admin.models';
 import { BloodGroupUtil } from '../../../core/utils/blood-group.util';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-management',
@@ -29,7 +30,8 @@ export class UserManagement implements OnInit {
     private adminService: AdminService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -48,52 +50,50 @@ export class UserManagement implements OnInit {
 
   loadUsers() {
     this.isLoading = true;
+    this.cdr.detectChanges();
     const url = this.router.url;
     
     if (url.includes('/doctors')) {
       // Load only doctors
-      this.adminService.getAllDoctors().subscribe({
-        next: (doctorResponse) => {
+      this.adminService.getAllDoctors().pipe(
+        finalize(() => {
           this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      ).subscribe({
+        next: (doctorResponse) => {
+          this.toastr.success('Doctors loaded successfully');
           if (doctorResponse?.success && doctorResponse.data) {
             this.doctors = doctorResponse.data;
+          } else {
+            this.doctors = [];
           }
         },
-        error: () => {
-          this.isLoading = false;
+        error: (error) => {
           this.toastr.error('Failed to load doctors');
+          this.doctors = [];
         }
       });
     } else if (url.includes('/patients')) {
       // Load only patients
-      this.adminService.getAllPatients().subscribe({
-        next: (patientResponse) => {
+      this.adminService.getAllPatients().pipe(
+        finalize(() => {
           this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      ).subscribe({
+        next: (patientResponse) => {
+          this.toastr.success('Patients loaded successfully');
           if (patientResponse?.success && patientResponse.data) {
             this.patients = patientResponse.data;
+          } else {
+            this.patients = [];
           }
         },
-        error: () => {
-          this.isLoading = false;
+        error: (error) => {
           this.toastr.error('Failed to load patients');
+          this.patients = [];
         }
-      });
-    } else {
-      // Load both (fallback)
-      Promise.all([
-        this.adminService.getAllDoctors().toPromise(),
-        this.adminService.getAllPatients().toPromise()
-      ]).then(([doctorResponse, patientResponse]) => {
-        this.isLoading = false;
-        if (doctorResponse?.success && doctorResponse.data) {
-          this.doctors = doctorResponse.data;
-        }
-        if (patientResponse?.success && patientResponse.data) {
-          this.patients = patientResponse.data;
-        }
-      }).catch(() => {
-        this.isLoading = false;
-        this.toastr.error('Failed to load users');
       });
     }
   }

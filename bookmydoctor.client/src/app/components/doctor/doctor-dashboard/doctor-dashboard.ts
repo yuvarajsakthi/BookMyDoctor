@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,11 +8,13 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { AppointmentResponseDto } from '../../../core/models/admin.models';
+import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-doctor-dashboard',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './doctor-dashboard.html',
   styleUrl: './doctor-dashboard.scss'
 })
@@ -26,7 +28,8 @@ export class DoctorDashboardComponent implements OnInit {
   constructor(
     private router: Router,
     private appointmentService: AppointmentService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -46,16 +49,24 @@ export class DoctorDashboardComponent implements OnInit {
 
   loadTodayAppointments() {
     this.isLoading = true;
-    this.appointmentService.getTodayAppointmentsForDoctor().subscribe({
-      next: (appointments) => {
-        this.todayAppointments = appointments;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.toastr.error('Failed to load appointments');
-        this.isLoading = false;
-      }
-    });
+    this.cdr.detectChanges();
+    
+    this.appointmentService.getTodayAppointmentsForDoctor()
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (appointments) => {
+          this.todayAppointments = appointments || [];
+        },
+        error: (error) => {
+          this.todayAppointments = [];
+          this.toastr.error('Failed to load appointments');
+        }
+      });
   }
 
   viewAppointments() {
@@ -127,9 +138,12 @@ export class DoctorDashboardComponent implements OnInit {
     if (typeof status === 'string') return status;
     switch (status) {
       case 0: return 'Pending';
-      case 1: return 'Booked';
-      case 2: return 'Cancelled';
-      case 3: return 'Completed';
+      case 1: return 'Approved';
+      case 2: return 'Rejected';
+      case 3: return 'Booked';
+      case 4: return 'Completed';
+      case 5: return 'Cancelled';
+      case 6: return 'PaymentDone';
       default: return 'Unknown';
     }
   }

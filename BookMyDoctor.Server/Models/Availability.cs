@@ -13,8 +13,10 @@ namespace BookMyDoctor.Server.Models
         public TimeOnly StartTime { get; set; }
         [Required]
         public TimeOnly EndTime { get; set; }
+        public int? ClinicId { get; set; }
         public bool IsActive { get; set; } = true;
 
         public User Doctor { get; set; } = null!;
+        public Clinic? Clinic { get; set; }
     }
 }

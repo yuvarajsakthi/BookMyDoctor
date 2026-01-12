@@ -29,10 +29,8 @@ import { ClinicService } from '../../../core/services/clinic.service';
 })
 export class AvailabilityComponent implements OnInit {
   availabilityForm: FormGroup;
-  breakForm: FormGroup;
   dayOffForm: FormGroup;
   availability: any[] = [];
-  breaks: any[] = [];
   daysOff: any[] = [];
   clinics: any[] = [];
   weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -51,13 +49,6 @@ export class AvailabilityComponent implements OnInit {
       endTime: ['', Validators.required]
     });
 
-    this.breakForm = this.fb.group({
-      clinicId: ['', Validators.required],
-      dayOfWeek: ['', Validators.required],
-      startTime: ['', Validators.required],
-      endTime: ['', Validators.required]
-    });
-
     this.dayOffForm = this.fb.group({
       date: ['', Validators.required],
       reason: ['']
@@ -65,10 +56,22 @@ export class AvailabilityComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadAllAvailabilityData();
+  }
+
+  loadAllAvailabilityData() {
     this.loadClinics();
-    this.loadAvailability();
-    this.loadBreaks();
-    this.loadDaysOff();
+    // Load all availability data in a single call
+    this.availabilityService.getAllAvailabilityData().subscribe({
+      next: (data) => {
+        this.availability = data.availability || [];
+        this.daysOff = data.daysOff || [];
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.toastr.error('Failed to load availability data');
+      }
+    });
   }
 
   loadClinics() {
@@ -95,18 +98,6 @@ export class AvailabilityComponent implements OnInit {
     });
   }
 
-  loadBreaks() {
-    this.availabilityService.getDoctorBreaks().subscribe({
-      next: (data) => {
-        this.breaks = data;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.toastr.error('Failed to load breaks');
-      }
-    });
-  }
-
   loadDaysOff() {
     this.availabilityService.getDoctorDaysOff().subscribe({
       next: (data) => {
@@ -125,25 +116,10 @@ export class AvailabilityComponent implements OnInit {
         next: () => {
           this.toastr.success('Working hours added');
           this.availabilityForm.reset();
-          this.loadAvailability();
+          this.loadAllAvailabilityData();
         },
         error: () => {
           this.toastr.error('Failed to add working hours');
-        }
-      });
-    }
-  }
-
-  addBreak() {
-    if (this.breakForm.valid) {
-      this.availabilityService.addBreak(this.breakForm.value).subscribe({
-        next: () => {
-          this.toastr.success('Break time added');
-          this.breakForm.reset();
-          this.loadBreaks();
-        },
-        error: () => {
-          this.toastr.error('Failed to add break');
         }
       });
     }
@@ -161,7 +137,7 @@ export class AvailabilityComponent implements OnInit {
         next: () => {
           this.toastr.success('Day off scheduled');
           this.dayOffForm.reset();
-          this.loadDaysOff();
+          this.loadAllAvailabilityData();
         },
         error: () => {
           this.toastr.error('Failed to schedule day off');
@@ -174,22 +150,10 @@ export class AvailabilityComponent implements OnInit {
     this.availabilityService.removeAvailability(id).subscribe({
       next: () => {
         this.toastr.success('Working hours removed');
-        this.loadAvailability();
+        this.loadAllAvailabilityData();
       },
       error: () => {
         this.toastr.error('Failed to remove working hours');
-      }
-    });
-  }
-
-  removeBreak(id: number) {
-    this.availabilityService.removeBreak(id).subscribe({
-      next: () => {
-        this.toastr.success('Break removed');
-        this.loadBreaks();
-      },
-      error: () => {
-        this.toastr.error('Failed to remove break');
       }
     });
   }
@@ -198,7 +162,7 @@ export class AvailabilityComponent implements OnInit {
     this.availabilityService.removeDayOff(id).subscribe({
       next: () => {
         this.toastr.success('Day off cancelled');
-        this.loadDaysOff();
+        this.loadAllAvailabilityData();
       },
       error: () => {
         this.toastr.error('Failed to cancel day off');
@@ -210,7 +174,10 @@ export class AvailabilityComponent implements OnInit {
     return this.availability.filter(slot => slot.dayOfWeek == dayIndex);
   }
 
-  getClinicName(clinicId: number): string {
+  getClinicName(clinicId: number | null | undefined): string {
+    if (!clinicId) {
+      return 'No Clinic Selected';
+    }
     const clinic = this.clinics.find(c => c.clinicId === clinicId);
     return clinic ? clinic.clinicName : 'Unknown Clinic';
   }

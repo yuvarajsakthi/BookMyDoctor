@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { ToastrService } from 'ngx-toastr';
 import { PaymentService, PaymentResponseDto } from '../../../core/services/payment.service';
 import { PatientService } from '../../../core/services/patient.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-payment-history',
@@ -28,7 +29,8 @@ export class PaymentHistory implements OnInit {
   constructor(
     private paymentService: PaymentService,
     private patientService: PatientService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -36,14 +38,22 @@ export class PaymentHistory implements OnInit {
   }
 
   loadPaymentHistory() {
-    this.patientService.getPaymentHistory().subscribe({
+    this.isLoading = true;
+    this.cdr.detectChanges();
+    
+    this.patientService.getPaymentHistory().pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (response) => {
-        this.payments = response || [];
-        this.isLoading = false;
+        this.toastr.success('Payment history loaded successfully');
+        this.payments = response?.data || response || [];
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load payment history');
-        this.isLoading = false;
+        this.payments = [];
       }
     });
   }

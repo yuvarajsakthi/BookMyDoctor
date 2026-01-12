@@ -34,7 +34,6 @@
     "@auth0/angular-jwt": "^5.2.0",
     "chart.js": "^4.5.1",
     "ngx-mask": "^20.0.3",
-    "ngx-snowfall": "^1.0.1",
     "ngx-spinner": "^19.0.0",
     "ngx-toastr": "^19.1.0",
     "rxjs": "~7.8.0",

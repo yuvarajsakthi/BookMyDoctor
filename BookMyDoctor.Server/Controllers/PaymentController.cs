@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookMyDoctor.Server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/payments")]
     [Authorize]
     public class PaymentController : ControllerBase
     {
@@ -50,6 +50,17 @@ namespace BookMyDoctor.Server.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty(request.RazorpayOrderId) || 
+                    string.IsNullOrEmpty(request.RazorpayPaymentId) || 
+                    string.IsNullOrEmpty(request.RazorpaySignature))
+                {
+                    return BadRequest(new ApiResponse<PaymentResponseDto>
+                    {
+                        Success = false,
+                        Message = "Missing required payment verification parameters"
+                    });
+                }
+
                 var payment = await _paymentService.VerifyPaymentAsync(
                     request.RazorpayOrderId, 
                     request.RazorpayPaymentId, 
@@ -64,12 +75,20 @@ namespace BookMyDoctor.Server.Controllers
                     Data = response
                 });
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
                 return BadRequest(new ApiResponse<PaymentResponseDto>
                 {
                     Success = false,
                     Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<PaymentResponseDto>
+                {
+                    Success = false,
+                    Message = "Payment verification failed: " + ex.Message
                 });
             }
         }
@@ -168,15 +187,55 @@ namespace BookMyDoctor.Server.Controllers
         [HttpGet("history")]
         public async Task<IActionResult> GetPaymentHistory()
         {
-            var payments = new object[] { };
-            return Ok(new ApiResponse<object> { Success = true, Data = payments });
+            try
+            {
+                var userIdClaim = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+                var userId = int.Parse(userIdClaim ?? "0");
+                
+                var payments = await _paymentService.GetPaymentHistoryByUserAsync(userId);
+                return Ok(new ApiResponse<object> { Success = true, Data = payments });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllPayments()
+        {
+            try
+            {
+                var allPayments = await _paymentService.GetAllPaymentsAsync();
+                return Ok(new ApiResponse<object> { Success = true, Data = allPayments });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, Message = ex.Message });
+            }
         }
 
         [HttpGet("invoice/{paymentId}")]
         public async Task<IActionResult> DownloadInvoice(int paymentId)
         {
-            var pdfBytes = new byte[] { }; // Mock PDF data
-            return File(pdfBytes, "application/pdf", $"invoice-{paymentId}.pdf");
+            try
+            {
+                var payment = await _paymentService.GetPaymentByIdAsync(paymentId);
+                if (payment == null)
+                {
+                    return NotFound(new ApiResponse<object> { Success = false, Message = "Payment not found" });
+                }
+
+                // Generate PDF invoice (simplified)
+                var invoiceContent = $"Invoice for Payment ID: {paymentId}\nAmount: ₹{payment.Amount}\nDate: {payment.CreatedAt}";
+                var pdfBytes = System.Text.Encoding.UTF8.GetBytes(invoiceContent);
+                
+                return File(pdfBytes, "application/pdf", $"invoice-{paymentId}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object> { Success = false, Message = ex.Message });
+            }
         }
     }
 }

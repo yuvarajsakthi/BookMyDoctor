@@ -100,8 +100,33 @@ namespace BookMyDoctor.Server.DTOs
         public string? Reason { get; set; }
     }
 
+    public class AppointmentApprovalDto
+    {
+        public bool IsApproved { get; set; }
+        public string? Reason { get; set; }
+        public bool BlockSlot { get; set; } = false;
+    }
+
+    public class BlockSlotDto
+    {
+        public int DoctorId { get; set; }
+        public int ClinicId { get; set; }
+        public DateOnly Date { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public string? Reason { get; set; }
+    }
+
     public class AppointmentRescheduleDto
     {
+        public DateOnly NewDate { get; set; }
+        public TimeOnly NewStartTime { get; set; }
+        public string? Reason { get; set; }
+    }
+
+    public class DoctorRescheduleDto
+    {
+        public int AppointmentId { get; set; }
         public DateOnly NewDate { get; set; }
         public TimeOnly NewStartTime { get; set; }
         public string? Reason { get; set; }
@@ -124,6 +149,7 @@ namespace BookMyDoctor.Server.DTOs
         public string StartTime { get; set; } = string.Empty;
         [Required]
         public string EndTime { get; set; } = string.Empty;
+         public int? ClinicId { get; set; }
     }
 
     public class AvailabilityResponseDto

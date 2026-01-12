@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,11 +15,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { PatientService } from '../../../core/services/patient.service';
 import { PaymentService } from '../../../core/services/payment.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-book-appointment',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -54,7 +56,8 @@ export class BookAppointmentComponent implements OnInit {
     private paymentService: PaymentService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -105,21 +108,27 @@ export class BookAppointmentComponent implements OnInit {
 
   loadData() {
     this.isLoading = true;
-    this.patientService.getNearbyClinics().subscribe({
+    this.cdr.detectChanges();
+    
+    this.patientService.getNearbyClinics().pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (response) => {
-        this.clinics = response?.data || [];
+        this.toastr.info('Clinics loaded successfully');
+        this.clinics = response?.data || response || [];
         
         // Pre-select clinic if passed via query params
         const clinicId = this.route.snapshot.queryParams['clinicId'];
         if (clinicId) {
           this.appointmentForm.patchValue({ clinicId: parseInt(clinicId) });
         }
-        
-        this.isLoading = false;
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load clinics');
-        this.isLoading = false;
+        this.clinics = [];
       }
     });
   }
@@ -133,10 +142,6 @@ export class BookAppointmentComponent implements OnInit {
         
         if (this.doctors.length === 0) {
           this.toastr.info('No doctors available at this clinic');
-        } else {
-          this.doctors.forEach(doctor => {
-            this.loadDoctorAvailability(doctor.userId);
-          });
         }
       },
       error: () => {
@@ -148,20 +153,8 @@ export class BookAppointmentComponent implements OnInit {
   }
 
   loadDoctorAvailability(doctorId: number) {
-    this.patientService.getDoctorAvailability(doctorId).subscribe({
-      next: (response) => {
-        const doctor = this.doctors.find(d => d.userId === doctorId);
-        if (doctor && response?.data) {
-          const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-          const availableDays = response.data
-            .filter((a: any) => a.isActive)
-            .map((a: any) => dayNames[a.dayOfWeek])
-            .join(', ');
-          doctor.availableDays = availableDays || 'No schedule set';
-        }
-      },
-      error: () => {}
-    });
+    // Remove individual availability loading to reduce API calls
+    // Availability will be loaded when needed for slot selection
   }
 
   updateAvailableTimeSlots() {
@@ -183,11 +176,18 @@ export class BookAppointmentComponent implements OnInit {
     }
     
     this.isLoadingSlots = true;
+    this.cdr.detectChanges();
+    
     const dateString = selectedDate.toISOString().split('T')[0];
-    this.patientService.getAvailableSlots(doctorId, dateString).subscribe({
-      next: (response) => {
-        this.availableTimeSlots = response?.data || [];
+    this.patientService.getAvailableSlots(doctorId, dateString).pipe(
+      finalize(() => {
         this.isLoadingSlots = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (response) => {
+        this.toastr.info('Available slots loaded');
+        this.availableTimeSlots = response?.data || response || [];
         
         // Reset time selection when slots change
         this.appointmentForm.patchValue({ startTime: '' });
@@ -196,10 +196,9 @@ export class BookAppointmentComponent implements OnInit {
           this.toastr.info('No available slots for the selected date. Try another date.');
         }
       },
-      error: () => {
+      error: (error) => {
         this.toastr.error('Failed to load available slots');
         this.availableTimeSlots = [];
-        this.isLoadingSlots = false;
       }
     });
   }

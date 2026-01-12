@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { AdminService } from '../../../core/services/admin.service';
 import { DashboardSummaryDto, UserResponseDto } from '../../../core/models/admin.models';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -17,41 +19,51 @@ export class AdminDashboardComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
 
-  constructor(private router: Router, private adminService: AdminService) {}
+  constructor(
+    private router: Router, 
+    private adminService: AdminService, 
+    private cdr: ChangeDetectorRef,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit() {
     this.loadDashboardData();
   }
 
   async loadDashboardData() {
-    try {
-      this.isLoading = true;
-      this.error = null;
-      
-      const summaryResponse = await this.adminService.getDashboardSummary().toPromise();
-      
-      this.dashboardSummary = summaryResponse?.data || {
-        totalPatients: 0,
-        totalDoctors: 0,
-        totalAppointments: 0,
-        totalRevenue: 0,
-        pendingDoctors: []
-      };
-      
-      this.pendingDoctors = this.dashboardSummary.pendingDoctors || [];
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      this.error = 'Failed to load dashboard data. Please try again.';
-      this.dashboardSummary = {
-        totalPatients: 0,
-        totalDoctors: 0,
-        totalAppointments: 0,
-        totalRevenue: 0,
-        pendingDoctors: []
-      };
-    } finally {
-      this.isLoading = false;
-    }
+    this.isLoading = true;
+    this.error = null;
+    this.cdr.detectChanges();
+    
+    this.adminService.getDashboardSummary().pipe(
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (response) => {
+        this.toastr.success('Dashboard data loaded successfully');
+        this.dashboardSummary = response?.data || {
+          totalPatients: 0,
+          totalDoctors: 0,
+          totalAppointments: 0,
+          totalRevenue: 0,
+          pendingDoctors: []
+        };
+        this.pendingDoctors = this.dashboardSummary.pendingDoctors || [];
+      },
+      error: (error) => {
+        this.toastr.error('Failed to load dashboard data. Please try again.');
+        this.error = 'Failed to load dashboard data. Please try again.';
+        this.dashboardSummary = {
+          totalPatients: 0,
+          totalDoctors: 0,
+          totalAppointments: 0,
+          totalRevenue: 0,
+          pendingDoctors: []
+        };
+      }
+    });
   }
 
   loadDashboardSummary() {
@@ -61,7 +73,7 @@ export class AdminDashboardComponent implements OnInit {
         this.pendingDoctors = this.dashboardSummary?.pendingDoctors || [];
       },
       error: (error) => {
-        console.error('Error loading dashboard summary:', error);
+        this.toastr.error('Failed to load dashboard summary');
         this.error = 'Failed to load dashboard summary';
       }
     });
@@ -75,7 +87,7 @@ export class AdminDashboardComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading pending doctors:', error);
+        this.toastr.error('Failed to load pending doctors');
       }
     });
   }
@@ -95,17 +107,17 @@ export class AdminDashboardComponent implements OnInit {
         if (response.success && this.dashboardSummary) {
           this.dashboardSummary.pendingDoctors = this.dashboardSummary.pendingDoctors.filter(d => d.userId !== doctor.userId);
           this.loadDashboardSummary();
+          this.toastr.success('Doctor approved successfully');
         }
       },
       error: (error) => {
-        console.error('Error approving doctor:', error);
+        this.toastr.error('Failed to approve doctor');
       }
     });
   }
 
   viewDoctorDetails(doctor: UserResponseDto) {
-    // Navigate to doctor details page or open modal
-    console.log('View doctor details:', doctor);
+    this.toastr.info(`Viewing details for Dr. ${doctor.userName}`);
   }
 
   viewUsers() {

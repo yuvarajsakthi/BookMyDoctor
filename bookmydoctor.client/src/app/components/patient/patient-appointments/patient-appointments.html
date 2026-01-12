@@ -27,7 +27,7 @@
   @if (!isLoading && appointments.length > 0) {
     <div class="appointments-grid">
       @for (appointment of appointments; track appointment) {
-        <div class="appointment-card">
+        <div class="appointment-card" [ngClass]="{rejected: appointment.status?.toLowerCase() === 'rejected'}">
           <div class="card-header">
             <div class="doctor-info">
               <mat-icon class="doctor-icon">person</mat-icon>

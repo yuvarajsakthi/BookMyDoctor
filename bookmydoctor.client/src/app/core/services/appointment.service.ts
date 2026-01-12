@@ -24,6 +24,28 @@ export interface AppointmentRescheduleDto {
   reason?: string;
 }
 
+export interface AppointmentApprovalDto {
+  isApproved: boolean;
+  reason?: string;
+  blockSlot?: boolean;
+}
+
+export interface DoctorRescheduleDto {
+  appointmentId: number;
+  newDate: string;
+  newStartTime: string;
+  reason?: string;
+}
+
+export interface BlockSlotDto {
+  doctorId: number;
+  clinicId: number;
+  date: string;
+  startTime: string;
+  endTime: string;
+  reason?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -38,12 +60,14 @@ export class AppointmentService {
   }
 
   getDoctorAvailability(): Observable<any[]> {
-    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/availability`)
-      .pipe(map(response => response.data || []));
+    return this.http.get<ApiResponse<any[]>>(`${environment.apiUrl}/api/availability/all`)
+      .pipe(map(response => {
+        return response.data || [];
+      }));
   }
 
   getAllPayments(): Observable<any[]> {
-    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/payments`)
+    return this.http.get<ApiResponse<any[]>>(`${environment.apiUrl}/api/payments/all`)
       .pipe(map(response => response.data || []));
   }
 
@@ -65,7 +89,11 @@ export class AppointmentService {
   }
 
   rescheduleAppointment(id: number, reschedule: AppointmentRescheduleDto): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}/reschedule`, reschedule);
+    return this.http.put<any>(`${this.apiUrl}/${id}/patient-reschedule`, reschedule);
+  }
+
+  doctorRescheduleAppointment(id: number, reschedule: DoctorRescheduleDto): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/doctor-reschedule`, reschedule);
   }
 
   cancelAppointment(id: number, reason?: string): Observable<void> {
@@ -82,7 +110,20 @@ export class AppointmentService {
       .pipe(map(response => response.data || []));
   }
 
-  blockTimeSlot(blockData: any): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/block-slot`, blockData);
+  blockTimeSlot(blockData: BlockSlotDto): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/block-slot`, blockData);
+  }
+
+  getDoctorPendingAppointments(): Observable<AppointmentResponseDto[]> {
+    return this.http.get<ApiResponse<AppointmentResponseDto[]>>(`${this.apiUrl}/doctor/pending`)
+      .pipe(map(response => response.data || []));
+  }
+
+  approveOrRejectAppointment(id: number, approval: AppointmentApprovalDto): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/approve`, approval);
+  }
+
+  completeAppointment(id: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/complete`, {});
   }
 }

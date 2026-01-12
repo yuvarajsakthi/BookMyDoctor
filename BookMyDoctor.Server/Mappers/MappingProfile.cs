@@ -1,6 +1,7 @@
 using AutoMapper;
 using BookMyDoctor.Server.DTOs;
 using BookMyDoctor.Server.Models;
+using BookMyDoctor.Server.Models.Enums;
 using PaymentModel = BookMyDoctor.Server.Models.Payment;
 
 namespace BookMyDoctor.Server.Mappers
@@ -9,9 +10,19 @@ namespace BookMyDoctor.Server.Mappers
     {
         public MappingProfile()
         {
-            // User Mappings
+            // User Creation Mappings
+            CreateMap<PatientCreateDto, User>()
+                .ForMember(dest => dest.UserRole, opt => opt.MapFrom(src => UserRole.Patient))
+                .ForMember(dest => dest.EmergencyContact, opt => opt.MapFrom(src => src.EmergencyContactNumber));
+            
+            CreateMap<DoctorCreateDto, User>()
+                .ForMember(dest => dest.UserRole, opt => opt.MapFrom(src => UserRole.Doctor));
+            
+            // User Response Mappings
             CreateMap<User, UserResponseDto>()
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth.HasValue ? src.DateOfBirth.Value.ToString("yyyy-MM-dd") : null));
+            
+            CreateMap<User, UserDto>();
             
             // Appointment mappings
             CreateMap<Appointment, AppointmentResponseDto>()

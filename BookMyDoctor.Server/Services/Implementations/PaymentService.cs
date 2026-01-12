@@ -60,7 +60,7 @@ namespace BookMyDoctor.Server.Services.Implementations
         public async Task<PaymentModel> VerifyPaymentAsync(string razorpayOrderId, string razorpayPaymentId, string razorpaySignature)
         {
             // Verify signature
-            var isValidSignature = VerifySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature);
+            var isValidSignature = VerifyRazorpaySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature);
             if (!isValidSignature)
                 throw new ArgumentException("Invalid payment signature");
 
@@ -76,6 +76,18 @@ namespace BookMyDoctor.Server.Services.Implementations
             payment.PaidAt = DateTime.UtcNow;
 
             await _unitOfWork.Payments.UpdateAsync(payment);
+
+            // Update appointment status to PaymentDone
+            if (payment.AppointmentId.HasValue)
+            {
+                var appointment = await _unitOfWork.Appointments.GetByIdAsync(payment.AppointmentId.Value);
+                if (appointment != null)
+                {
+                    appointment.Status = AppointmentStatus.PaymentDone;
+                    await _unitOfWork.Appointments.UpdateAsync(appointment);
+                }
+            }
+
             await _unitOfWork.SaveChangesAsync();
 
             return payment;
@@ -111,7 +123,30 @@ namespace BookMyDoctor.Server.Services.Implementations
             return payments.FirstOrDefault();
         }
 
-        private bool VerifySignature(string orderId, string paymentId, string signature)
+        public async Task<PaymentModel?> GetPaymentByIdAsync(int paymentId)
+        {
+            return await _unitOfWork.Payments.GetByIdAsync(paymentId);
+        }
+
+        public async Task<IEnumerable<PaymentModel>> GetPaymentHistoryByUserAsync(int userId)
+        {
+            // Get all appointments for the user (patient)
+            var appointments = await _unitOfWork.Appointments.FindAsync(a => a.PatientId == userId);
+            var appointmentIds = appointments.Select(a => a.AppointmentId).ToList();
+            
+            // Get all payments for these appointments
+            var payments = await _unitOfWork.Payments.FindAsync(p => appointmentIds.Contains(p.AppointmentId ?? 0));
+            
+            return payments.OrderByDescending(p => p.CreatedAt);
+        }
+
+        public async Task<IEnumerable<PaymentModel>> GetAllPaymentsAsync()
+        {
+            var payments = await _unitOfWork.Payments.GetAllAsync();
+            return payments.OrderByDescending(p => p.CreatedAt);
+        }
+
+        private bool VerifyRazorpaySignature(string orderId, string paymentId, string signature)
         {
             var payload = $"{orderId}|{paymentId}";
             var secret = _razorpayKeySecret;
