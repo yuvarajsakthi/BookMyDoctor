@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -37,18 +37,18 @@ export class ClinicFormComponent implements OnInit {
     private clinicService: ClinicService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.initForm();
-    this.route.params.subscribe(params => {
-      if (params['clinicId']) {
-        this.clinicId = +params['clinicId'];
-        this.isEditMode = true;
-        this.loadClinic();
-      }
-    });
+    const clinicId = this.route.snapshot.params['clinicId'];
+    if (clinicId) {
+      this.clinicId = +clinicId;
+      this.isEditMode = true;
+      this.loadClinic();
+    }
   }
 
   initForm() {
@@ -67,13 +67,18 @@ export class ClinicFormComponent implements OnInit {
     
     this.isLoading = true;
     this.clinicService.getClinic(this.clinicId).subscribe({
-      next: (clinic) => {
-        this.clinicForm.patchValue(clinic);
+      next: (response) => {
         this.isLoading = false;
+        if (response.success && response.data) {
+          this.clinicForm.patchValue(response.data);
+        }
+        this.cdr.detectChanges();
       },
-      error: () => {
-        this.toastr.error('Failed to load clinic details');
+      error: (err) => {
         this.isLoading = false;
+        console.error('Error loading clinic:', err);
+        this.toastr.error('Failed to load clinic details');
+        this.cdr.detectChanges();
       }
     });
   }

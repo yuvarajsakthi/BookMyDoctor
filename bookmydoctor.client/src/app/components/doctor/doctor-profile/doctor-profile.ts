@@ -85,7 +85,6 @@ import { DoctorService } from '../../../core/services/doctor.service';
                 <select formControlName="gender">
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
-                  <option value="Other">Other</option>
                 </select>
               </div>
     
@@ -401,7 +400,7 @@ export class DoctorProfileComponent implements OnInit {
       userName: [{value: '', disabled: true}, Validators.required],
       email: [{value: '', disabled: true}, [Validators.required, Validators.email]],
       phone: [{value: '', disabled: true}],
-      gender: [{value: '', disabled: true}],
+      gender: [{value: 'Male', disabled: true}],
       specialty: [{value: '', disabled: true}],
       experienceYears: [{value: 0, disabled: true}],
       consultationFee: [{value: 0, disabled: true}],
@@ -444,10 +443,16 @@ export class DoctorProfileComponent implements OnInit {
   updateProfile() {
     if (this.profileForm.valid) {
       this.isLoading = true;
-      this.doctorService.updateProfile(this.profileForm.value).subscribe({
+      const formValue = this.profileForm.value;
+      const updateData = {
+        ...formValue,
+        gender: formValue.gender === 'Male' ? 0 : 1
+      };
+      
+      this.doctorService.updateProfile(updateData).subscribe({
         next: () => {
           this.toastr.success('Profile updated successfully');
-          this.profileData = { ...this.profileData, ...this.profileForm.value };
+          this.profileData = { ...this.profileData, ...formValue };
           this.isEditing = false;
           this.isLoading = false;
         },

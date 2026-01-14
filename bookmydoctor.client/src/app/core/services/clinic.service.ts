@@ -29,8 +29,8 @@ export class ClinicService {
       .pipe(map(response => response.data || []));
   }
 
-  getClinic(id: number): Observable<Clinic> {
-    return this.http.get<Clinic>(`${this.apiUrl}/clinics/${id}`);
+  getClinic(id: number): Observable<ApiResponse<Clinic>> {
+    return this.http.get<ApiResponse<Clinic>>(`${this.apiUrl}/clinics/${id}`);
   }
 
   createClinic(clinic: ClinicCreateDto): Observable<Clinic> {

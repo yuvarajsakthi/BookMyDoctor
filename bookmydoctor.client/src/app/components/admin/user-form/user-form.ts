@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -13,7 +14,8 @@ import { BloodGroupUtil } from '../../../core/utils/blood-group.util';
   selector: 'app-user-form',
   imports: [
     ReactiveFormsModule,
-    MaterialModule
+    MaterialModule,
+    CommonModule
 ],
   templateUrl: './user-form.html',
   styleUrl: './user-form.scss',
@@ -25,14 +27,25 @@ export class UserForm implements OnInit {
   isEditMode = false;
   isLoading = false;
   returnUrl = '/admin/doctors';
+  selectedFile: File | null = null;
+  selectedFileName = '';
+  isDragging = false;
 
   genderOptions = [
-    { value: 0, label: 'Male' },
-    { value: 1, label: 'Female' },
-    { value: 2, label: 'Other' }
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' }
   ];
 
-  bloodGroupOptions = BloodGroupUtil.getBloodGroupOptions();
+  bloodGroupOptions = [
+    { value: 'APositive', label: 'A+' },
+    { value: 'ANegative', label: 'A-' },
+    { value: 'BPositive', label: 'B+' },
+    { value: 'BNegative', label: 'B-' },
+    { value: 'ABPositive', label: 'AB+' },
+    { value: 'ABNegative', label: 'AB-' },
+    { value: 'OPositive', label: 'O+' },
+    { value: 'ONegative', label: 'O-' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -40,7 +53,8 @@ export class UserForm implements OnInit {
     private route: ActivatedRoute,
     private adminService: AdminService,
     private authService: AuthService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -63,7 +77,7 @@ export class UserForm implements OnInit {
       userName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
-      gender: [''],
+      gender: ['Male'],
       password: [this.isEditMode ? '' : '', this.isEditMode ? [] : [Validators.required, Validators.minLength(6)]]
     };
 
@@ -78,7 +92,7 @@ export class UserForm implements OnInit {
     } else {
       this.userForm = this.fb.group({
         ...baseFields,
-        bloodGroup: [''],
+        bloodGroup: ['APositive'],
         emergencyContactNumber: ['', [Validators.pattern(/^[0-9]{10}$/)]],
         dateOfBirth: ['']
       });
@@ -94,21 +108,34 @@ export class UserForm implements OnInit {
         this.isLoading = false;
         if (response.success && response.data) {
           const user = response.data;
-          this.userForm.patchValue({
-            userName: user.userName,
-            email: user.email,
-            phone: user.phone,
-            gender: user.gender,
-            ...(this.userType === 'doctor' ? {
-              specialty: user.specialty,
-              experienceYears: user.experienceYears,
-              consultationFee: user.consultationFee
-            } : {
-              bloodGroup: user.bloodGroup,
-              emergencyContactNumber: user.emergencyContact,
-              dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth) : null
-            })
-          });
+          
+          // Set userType based on actual user role - handle both string and number
+          this.userType = (user.userRole === 1 || user.userRole as any === 'Doctor' || (user.userRole as any) === 'doctor') ? 'doctor' : 'patient';
+
+          // Reinitialize form with correct type
+          this.initializeForm();
+          // Trigger change detection
+          this.cdr.detectChanges();
+          
+          // Use setTimeout to ensure form is ready
+          setTimeout(() => {
+            this.userForm.patchValue({
+              userName: user.userName,
+              email: user.email,
+              phone: user.phone,
+              gender: user.gender || 'Male',
+              ...(this.userType === 'doctor' ? {
+                specialty: user.specialty,
+                experienceYears: user.experienceYears,
+                consultationFee: user.consultationFee,
+                bio: user.bio
+              } : {
+                bloodGroup: user.bloodGroup,
+                emergencyContactNumber: user.emergencyContact,
+                dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth) : null
+              })
+            });
+          }, 0);
         } else {
           this.toastr.error(response.message);
         }
@@ -118,6 +145,41 @@ export class UserForm implements OnInit {
         this.toastr.error('Failed to load user data');
       }
     });
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.selectedFileName = file.name;
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+    
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        this.selectedFile = file;
+        this.selectedFileName = file.name;
+      }
+    }
   }
 
   onSubmit() {
@@ -166,15 +228,43 @@ export class UserForm implements OnInit {
   updateUser(formValue: any) {
     if (!this.userId) return;
 
-    this.toastr.success(`${this.userType === 'doctor' ? 'Doctor' : 'Patient'} updated successfully`);
-    this.goBack();
+    const updateData = this.userType === 'doctor' ? 
+      this.prepareDoctorUpdateData(formValue) : 
+      this.preparePatientUpdateData(formValue);
+
+    const formData = new FormData();
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] !== null && updateData[key] !== undefined) {
+        formData.append(key, updateData[key]);
+      }
+    });
+    
+    if (this.selectedFile) {
+      formData.append('profileImage', this.selectedFile);
+    }
+
+    this.adminService.updateUser(this.userId, formData).subscribe({
+      next: (response: any) => {
+        this.isLoading = false;
+        if (response.success) {
+          this.toastr.success(`${this.userType === 'doctor' ? 'Doctor' : 'Patient'} updated successfully`);
+          this.goBack();
+        } else {
+          this.toastr.error(response.message);
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+        this.toastr.error(`Failed to update ${this.userType}`);
+      }
+    });
   }
 
   prepareDoctorUpdateData(formValue: any): any {
     return {
       userName: formValue.userName,
       phone: formValue.phone,
-      gender: formValue.gender,
+      gender: formValue.gender === 'Male' ? 0 : 1,
       specialty: formValue.specialty,
       experienceYears: formValue.experienceYears,
       consultationFee: formValue.consultationFee,

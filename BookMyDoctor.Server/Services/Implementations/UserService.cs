@@ -11,11 +11,13 @@ namespace BookMyDoctor.Server.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper)
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<IEnumerable<UserResponseDto>> GetDoctorsAsync()
@@ -42,6 +44,13 @@ namespace BookMyDoctor.Server.Services.Implementations
             var patient = await _unitOfWork.Users.GetByIdAsync(id);
             if (patient?.UserRole != UserRole.Patient) throw new ArgumentException("Patient not found");
             return _mapper.Map<UserResponseDto>(patient);
+        }
+
+        public async Task<UserResponseDto> GetUserByIdAsync(int id)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(id);
+            if (user == null) throw new ArgumentException("User not found");
+            return _mapper.Map<UserResponseDto>(user);
         }
 
         public async Task<IEnumerable<UserResponseDto>> SearchDoctorsAsync(string? specialty, string? location, DateTime? date)
@@ -110,10 +119,32 @@ namespace BookMyDoctor.Server.Services.Implementations
             return await _unitOfWork.Users.GetByIdAsync(userId);
         }
 
-        public async Task UpdateUserProfileAsync(int userId, object request)
+        public async Task UpdateUserProfileAsync(int userId, DoctorProfileUpdateDto request, IFormFile? profileImage)
         {
             var user = await _unitOfWork.Users.GetByIdAsync(userId);
             if (user == null) throw new ArgumentException("User not found");
+
+            if (!string.IsNullOrEmpty(request.UserName)) user.UserName = request.UserName;
+            if (!string.IsNullOrEmpty(request.Phone)) user.Phone = request.Phone;
+            if (request.Gender.HasValue) user.Gender = request.Gender.Value;
+            if (!string.IsNullOrEmpty(request.Specialty)) user.Specialty = request.Specialty;
+            if (request.ExperienceYears.HasValue) user.ExperienceYears = request.ExperienceYears.Value;
+            if (request.ConsultationFee.HasValue) user.ConsultationFee = request.ConsultationFee.Value;
+            if (request.Bio != null) user.Bio = request.Bio;
+
+            if (profileImage != null)
+            {
+                var uploadResult = await _cloudinaryService.UploadProfilePhotoAsync(profileImage, userId.ToString());
+                if (uploadResult?.SecureUrl != null)
+                {
+                    if (!string.IsNullOrEmpty(user.ProfilePhotoPublicId))
+                    {
+                        await _cloudinaryService.DeleteFileAsync(user.ProfilePhotoPublicId);
+                    }
+                    user.ProfileUrl = uploadResult.SecureUrl.ToString();
+                    user.ProfilePhotoPublicId = uploadResult.PublicId;
+                }
+            }
 
             user.UpdatedAt = DateTime.UtcNow;
             await _unitOfWork.Users.UpdateAsync(user);

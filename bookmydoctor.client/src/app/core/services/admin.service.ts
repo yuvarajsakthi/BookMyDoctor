@@ -32,7 +32,7 @@ export class AdminService {
   }
 
   getUserDetails(userId: number): Observable<ApiResponse<UserResponseDto>> {
-    return this.http.get<ApiResponse<UserResponseDto>>(`${this.apiUrl}/users/${userId}`);
+    return this.http.get<ApiResponse<UserResponseDto>>(`${environment.apiUrl}/api/users/${userId}`);
   }
 
   approveRejectDoctor(userId: number, isApproved: boolean): Observable<ApiResponse<any>> {
@@ -42,7 +42,13 @@ export class AdminService {
   }
 
   updateUserStatus(userId: number, isActive: boolean): Observable<ApiResponse<any>> {
-    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}/api/users/${userId}`, { isActive });
+    const formData = new FormData();
+    formData.append('isActive', isActive.toString());
+    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}/api/users/${userId}`, formData);
+  }
+
+  updateUser(userId: number, userData: any): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${environment.apiUrl}/api/users/${userId}`, userData);
   }
 
   deleteUser(userId: number): Observable<ApiResponse<any>> {

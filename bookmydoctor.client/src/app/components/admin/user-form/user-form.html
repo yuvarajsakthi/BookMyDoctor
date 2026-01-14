@@ -19,6 +19,19 @@
         </div>
 
         <div class="form-row">
+          <div class="image-upload-container" 
+               (drop)="onDrop($event)" 
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave($event)"
+               [class.drag-over]="isDragging">
+            <mat-icon>cloud_upload</mat-icon>
+            <p>Drag & drop profile image here or <button type="button" class="browse-btn" (click)="fileInput.click()">browse</button></p>
+            <span class="file-name" *ngIf="selectedFileName">{{ selectedFileName }}</span>
+            <input #fileInput type="file" hidden accept="image/*" (change)="onFileSelected($event)">
+          </div>
+        </div>
+
+        <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Email</mat-label>
             <input matInput type="email" formControlName="email" placeholder="Enter email address">

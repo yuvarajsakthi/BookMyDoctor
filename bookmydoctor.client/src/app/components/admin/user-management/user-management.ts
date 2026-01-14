@@ -113,7 +113,8 @@ export class UserManagement implements OnInit {
   }
 
   editUser(user: UserResponseDto) {
-    const userType = (user.userRole === 1) ? 'doctor' : 'patient';
+    const userType = (user.userRole === 1 || user.userRole as any === 'Doctor') ? 'doctor' : 'patient';
+    console.log('Editing user:', user.userName, 'Role:', user.userRole, 'Type:', userType);
     const currentRoute = this.router.url;
     let redirectRoute = '/admin/doctors';
     

@@ -87,11 +87,18 @@ namespace BookMyDoctor.Server.Controllers
             return Ok(new ApiResponse<UserResponseDto> { Success = true, Data = profile });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] object request)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
         {
-            await _userService.UpdateUserProfileAsync(id, request);
-            return Ok(new ApiResponse<object> { Success = true });
+            var user = await _userService.GetUserByIdAsync(id);
+            return Ok(new ApiResponse<UserResponseDto> { Success = true, Data = user });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserProfile(int id, [FromForm] DoctorProfileUpdateDto request, IFormFile? profileImage)
+        {
+            await _userService.UpdateUserProfileAsync(id, request, profileImage);
+            return Ok(new ApiResponse<object> { Success = true, Message = "User updated successfully" });
         }
     }
 }

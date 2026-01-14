@@ -50,6 +50,49 @@
     border-bottom: 2px solid #e0e0e0;
   }
 
+  .image-upload-container {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    background: #fafafa;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover, &.drag-over {
+      border-color: #1976d2;
+      background: #e3f2fd;
+    }
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #999;
+    }
+
+    p {
+      margin: 16px 0 8px;
+      color: #666;
+    }
+
+    .browse-btn {
+      background: none;
+      border: none;
+      color: #1976d2;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: inherit;
+    }
+
+    .file-name {
+      display: block;
+      margin-top: 8px;
+      color: #1976d2;
+      font-weight: 500;
+    }
+  }
+
   .mat-mdc-form-field {
     width: 100%;
 
