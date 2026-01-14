@@ -60,7 +60,11 @@ export class PatientService {
   }
 
   rescheduleAppointment(rescheduleData: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/appointments/${rescheduleData.appointmentId}/reschedule`, rescheduleData);
+    return this.http.put(`${this.apiUrl}/appointments/${rescheduleData.appointmentId}/patient-reschedule`, {
+      newDate: rescheduleData.newDate,
+      newStartTime: rescheduleData.newStartTime,
+      reason: rescheduleData.reason
+    });
   }
 
   getAppointmentById(appointmentId: number): Observable<any> {

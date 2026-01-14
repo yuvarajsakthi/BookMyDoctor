@@ -41,7 +41,7 @@ namespace BookMyDoctor.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> BookAppointment([FromBody] BookAppointmentDto request)
         {
-            var userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+            var userId = int.Parse(User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value ?? "0");
             var appointment = await _appointmentService.BookAppointmentAsync(userId, request);
             return Ok(new ApiResponse<object> { Success = true, Data = appointment });
         }

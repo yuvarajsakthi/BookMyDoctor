@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule, MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { PatientService } from '../../../core/services/patient.service';
@@ -32,7 +33,8 @@ import { finalize } from 'rxjs/operators';
     MatProgressSpinnerModule,
     MatIconModule,
     MatCardModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDialogModule
 ],
   templateUrl: './book-appointment.html',
   styleUrl: './book-appointment.scss'
@@ -57,7 +59,8 @@ export class BookAppointmentComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -214,8 +217,8 @@ export class BookAppointmentComponent implements OnInit {
     const appointmentData = {
       clinicId: formValue.clinicId,
       doctorId: formValue.doctorId,
-      appointmentDate: formValue.date.toISOString().split('T')[0],
-      startTime: formValue.startTime,
+      date: formValue.date.toISOString().split('T')[0],
+      startTime: formValue.startTime + ':00',
       reason: formValue.reason || ''
     };
 
@@ -223,12 +226,18 @@ export class BookAppointmentComponent implements OnInit {
       next: (response) => {
         this.toastr.success('Appointment booked successfully!');
         
-        // Ask if user wants to pay advance
-        if (confirm('Would you like to pay the consultation fee now?')) {
-          this.processAdvancePayment(response.data.appointmentId);
-        } else {
-          this.router.navigate(['/patient/appointments']);
-        }
+        const dialogRef = this.dialog.open(PaymentConfirmDialog, {
+          width: '400px',
+          data: { doctor: this.selectedDoctor }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            this.processAdvancePayment(response.data.appointmentId);
+          } else {
+            this.router.navigate(['/patient/appointments']);
+          }
+        });
       },
       error: (error) => {
         const errorMessage = error?.error?.message || 'Failed to book appointment';
@@ -322,4 +331,29 @@ export class BookAppointmentComponent implements OnInit {
     today.setHours(0, 0, 0, 0);
     return date >= today;
   }
+}
+
+
+@Component({
+  selector: 'payment-confirm-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  template: `
+    <h2 mat-dialog-title>Payment Confirmation</h2>
+    <mat-dialog-content>
+      <p>Would you like to pay the consultation fee now?</p>
+      <p *ngIf="data.doctor?.consultationFee" class="fee">Fee: ₹{{data.doctor.consultationFee}}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button [mat-dialog-close]="false">Pay Later</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="true">Pay Now</button>
+    </mat-dialog-actions>
+  `,
+  styles: [`
+    .fee { font-weight: 600; font-size: 18px; margin-top: 10px; }
+    mat-dialog-actions { padding: 16px 0; }
+  `]
+})
+export class PaymentConfirmDialog {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 }

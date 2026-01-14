@@ -105,7 +105,8 @@ export class RescheduleAppointment implements OnInit {
     const rescheduleData = {
       appointmentId: this.appointmentId,
       newDate: formValue.date.toISOString().split('T')[0],
-      newStartTime: formValue.startTime
+      newStartTime: formValue.startTime + ':00',
+      reason: ''
     };
 
     this.patientService.rescheduleAppointment(rescheduleData).subscribe({
